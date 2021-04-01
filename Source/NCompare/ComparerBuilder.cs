@@ -70,7 +70,7 @@ namespace NCompare
       }//if
 
       var type = expression.Type;
-      return type.IsTypeByReference() || type.IsValueType && Nullable.GetUnderlyingType(type) != null;
+      return type.IsTypeByReference() || type.IsValueType && Nullable.GetUnderlyingType(type) is not null;
     }
 
     public static bool IsTypeNullable(this Type type) {
@@ -78,7 +78,7 @@ namespace NCompare
         throw new ArgumentNullException(nameof(type));
       }//if
 
-      return type.IsTypeByReference() || type.IsValueType && Nullable.GetUnderlyingType(type) != null;
+      return type.IsTypeByReference() || type.IsValueType && Nullable.GetUnderlyingType(type) is not null;
     }
   }
 }
