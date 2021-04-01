@@ -3,12 +3,9 @@ using System.Collections.Generic;
 
 namespace NCompare
 {
-  public static class Comparers
+  internal static class Comparers
   {
     public static EqualityComparer<T> Create<T>(Func<T, T, bool> equals, Func<T, int> hashCode) => new MethodEqualityComparer<T>(equals, hashCode);
-
-    public static Comparer<T> Create<T>(Func<T, T, int> compare)
-      => compare is not null ? Comparer<T>.Create((x, y) => compare(x, y)) : throw new ArgumentNullException(nameof(compare));
 
     public static int RotateRight(int value, int places) {
       if((places &= 0x1F) == 0) {

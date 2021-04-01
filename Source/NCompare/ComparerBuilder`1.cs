@@ -11,7 +11,7 @@ namespace NCompare
   using static ComparerBuilder;
 
   [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ", nq}")]
-  public class ComparerBuilder<T> : IComparerBuilderContext
+  public sealed class ComparerBuilder<T> : IComparerBuilderContext
   {
     #region Cached Expression and Reflection objects
 
@@ -130,7 +130,7 @@ namespace NCompare
       return Lambda<Func<T, int>>(body, obj);
     }
 
-    internal Expression<Func<T, T, int>> BuildCompare(ParameterExpression x, ParameterExpression y) {
+    internal Expression<Comparison<T>> BuildCompare(ParameterExpression x, ParameterExpression y) {
       var reverse = Expressions.Select(item => item.AsCompare(this, x, y)).Reverse().ToList();
 
       var labelTargetReturn = Label(typeof(int));
@@ -155,7 +155,7 @@ namespace NCompare
         // }//if
         : IfThenElse(ReferenceEqual(x, y), returnZero, IfThenElse(IsNull(x), returnMinusOne, IfThenElse(IsNull(y), returnOne, expression)));
       var block = Block(CompareVariables, body, labelZero);
-      return Lambda<Func<T, T, int>>(block, x, y);
+      return Lambda<Comparison<T>>(block, x, y);
     }
 
     #endregion Build Methods
@@ -185,7 +185,7 @@ namespace NCompare
       var compare = BuildCompare(X, Y);
       var compareDelegate = compare.Compile();
 
-      return Comparers.Create(compareDelegate);
+      return Comparer<T>.Create(compareDelegate);
     }
 
     public EqualityComparer<T> CreateEqualityComparer() => EqualityComparer.Value;

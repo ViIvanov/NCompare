@@ -6,7 +6,6 @@ using System.Reflection;
 
 namespace NCompare
 {
-  using static ComparerBuilder;
   using static Expression;
   using static ReplaceVisitor;
 
