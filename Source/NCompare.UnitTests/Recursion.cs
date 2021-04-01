@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NCompare.UnitTests
 {
+  using static TestCompare;
+
   [TestClass]
   public sealed class Recursion
   {
@@ -36,30 +38,51 @@ namespace NCompare.UnitTests
       //var equalityComparer = EqualityComparer<LinkedListNode<string>>.Default;
       //var equalityComparer = lazyEqualityComparer.Value;
 
-      LinkedListNode<string> Node(string value, LinkedListNode<string>? next = null) => new LinkedListNode<string>(value, next);
+      //LinkedListNode<string> Node(string value, LinkedListNode<string>? next = null) => new LinkedListNode<string>(value, next);
 
-      var list1 = Node("1", Node("2", Node("3")));
-      var list2 = Node("1", Node("2", Node("C")));
-      var list3 = Node("1", Node("2", Node("3")));
+      //var list1 = Node("1", Node("2", Node("3")));
+      //var list2 = Node("1", Node("2", Node("C")));
+      //var list3 = Node("1", Node("2", Node("3")));
 
-      var builder = new ComparerBuilder<LinkedListNode<string>>();
-      var lazyEqualityComparer = builder.CreateLazyEqualityComparer();
-      builder.Add(value => value.Value, StringComparer.Ordinal);
-      builder.Add(value => value.Depth);
-      builder.Add(value => value.Next, lazyEqualityComparer!);
-      //builder.Add(
-      var equalityComparer = lazyEqualityComparer.Value;
-      Assert.IsNotNull(equalityComparer, nameof(equalityComparer));
+      //var builder = new ComparerBuilder<LinkedListNode<string>>();
+      //var lazyEqualityComparer = builder.CreateLazyEqualityComparer();
+      //builder.Add(value => value.Value, StringComparer.Ordinal);
+      //builder.Add(value => value.Depth);
+      //builder.Add(value => value.Next, lazyEqualityComparer!);
+      ////builder.Add(
+      //var equalityComparer = lazyEqualityComparer.Value;
+      //Assert.IsNotNull(equalityComparer, nameof(equalityComparer));
 
-      var test1 = equalityComparer.Equals(list1, list2); // False
-      var test2 = equalityComparer.Equals(list2, list3); // False
-      var test3 = equalityComparer.Equals(list1, list3); // True
+      //var test1 = equalityComparer.Equals(list1, list2); // False
+      //var test2 = equalityComparer.Equals(list2, list3); // False
+      //var test3 = equalityComparer.Equals(list1, list3); // True
 
       //try {
       //  var xtest2 = equalityComparer.Equals(data1, data4);
       //} catch(Exception) {
       //  throw;
       //}
+
+      static LinkedListNode<string> Node(string value, LinkedListNode<string>? next = null) => new(value, next);
+
+      var list1 = Node("1", Node("2", Node("3")));
+      var list2 = Node("1", Node("2", Node("C")));
+      var list3 = Node("1", Node("2", Node("3")));
+
+      var builder = new ComparerBuilder<LinkedListNode<string>>();
+      builder.Add(value => value.Value, StringComparer.Ordinal);
+      builder.Add(value => value.Depth);
+      builder.Add(value => value.Next, builder!);
+      var equalityComparer = builder.CreateEqualityComparer();
+      Assert.IsNotNull(equalityComparer, nameof(equalityComparer));
+
+      TestEqualityComparer("1/2", list1, list2, expected: false, equalityComparer);
+      TestEqualityComparer("2/3", list2, list3, expected: false, equalityComparer);
+      TestEqualityComparer("1/3", list1, list3, expected: true, equalityComparer);
+
+      //var test1 = equalityComparer.Equals(list1, list2); // False
+      //var test2 = equalityComparer.Equals(list2, list3); // False
+      //var test3 = equalityComparer.Equals(list1, list3); // True
     }
 
     private sealed class LinkedListNode<T> : IEquatable<LinkedListNode<T>>
@@ -73,6 +96,8 @@ namespace NCompare.UnitTests
       public T Value { get; }
       public int Depth { get; }
       public LinkedListNode<T>? Next { get; }
+
+      public override string ToString() => $"[{Value}@{Depth}] -> {{{Next?.ToString() ?? "<null>"}}}";
 
       public override bool Equals(object? obj) => Equals(obj as LinkedListNode<T>);
 
@@ -114,25 +139,22 @@ namespace NCompare.UnitTests
     [TestMethod]
     public void RecursiveComparerForListNode() {
       var listNodeBuilder = new ComparerBuilder<ListNode<int>>();
-      var lazyListNodeEqualityComparer = listNodeBuilder.CreateLazyEqualityComparer();
-
       var listNotesBuilder = new ComparerBuilder<ListNotes<int>>();
-      var lazyListNotesEqualityComparer = listNotesBuilder.CreateLazyEqualityComparer();
 
       listNodeBuilder.Add(item => item.Value);
       //listNodeBuilder.Add(item => item.Previous, lazyListNodeEqualityComparer!);
-      listNodeBuilder.Add(item => item.Next, lazyListNodeEqualityComparer!);
+      listNodeBuilder.Add(item => item.Next!);
       //listNodeBuilder.Add(item => item.Previous!);
       //listNodeBuilder.Add(item => item.Next!);
-      listNodeBuilder.Add(item => item.Notes, lazyListNotesEqualityComparer);
+      listNodeBuilder.Add(item => item.Notes, listNotesBuilder);
 
       //listNotesBuilder.Add(item => item.Root, lazyListNodeEqualityComparer);
-      //listNotesBuilder.Add(item => item.Root, lazyListNodeEqualityComparer);
+      //listNotesBuilder.Add(item => item.Root, listNodeBuilder);
       listNotesBuilder.Add(item => item.SavePath, StringComparer.OrdinalIgnoreCase);
 
-      var equalityComparer = lazyListNodeEqualityComparer.Value;
+      var equalityComparer = listNodeBuilder.CreateEqualityComparer();
 
-      ListNode<int> Build(params string[] paths) {
+      static ListNode<int> Build(params string[] paths) {
         var root = new ListNode<int>(0, "Root");
 
         if(paths != null) {
@@ -156,12 +178,15 @@ namespace NCompare.UnitTests
       var list2 = Build("X2");
       var list3 = Build("X1");
 
-      var equals12 = equalityComparer.Equals(list1, list2);
-      Assert.IsFalse(equals12, "1 <=> 2");
-      var equals23 = equalityComparer.Equals(list2, list3);
-      Assert.IsFalse(equals12, "2 <=> 3");
-      var equals13 = equalityComparer.Equals(list1, list3);
-      Assert.IsTrue(equals12, "1 <=> 3");
+      TestEqualityComparer("1/2", list1, list2, expected: false, equalityComparer);
+      TestEqualityComparer("2/3", list2, list3, expected: false, equalityComparer);
+      TestEqualityComparer("1/3", list1, list3, expected: true, equalityComparer);
+      //var equals12 = equalityComparer.Equals(list1, list2);
+      //Assert.IsFalse(equals12, "1 <=> 2");
+      //var equals23 = equalityComparer.Equals(list2, list3);
+      //Assert.IsFalse(equals12, "2 <=> 3");
+      //var equals13 = equalityComparer.Equals(list1, list3);
+      //Assert.IsTrue(equals12, "1 <=> 3");
     }
 
     class ListNode<T>
