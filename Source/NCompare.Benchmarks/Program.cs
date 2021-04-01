@@ -11,6 +11,7 @@ namespace NCompare.Benchmarks
       }//if
 
       BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
+      Console.WriteLine("Benchmark finished. Press <Enter> for exit.");
       Console.ReadLine();
     }
   }

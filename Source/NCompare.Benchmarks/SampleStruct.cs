@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Nito.Comparers;
+
 namespace NCompare.Benchmarks
 {
   public readonly struct SampleStruct : IEquatable<SampleStruct>, IComparable<SampleStruct>
@@ -31,7 +33,7 @@ namespace NCompare.Benchmarks
         return compare;
       }//if
 
-      return StringComparer.Ordinal.Compare(Text, other.Text);
+      return String.Compare(Text, other.Text);
     }
   }
 
@@ -52,50 +54,61 @@ namespace NCompare.Benchmarks
         return compare;
       }//if
 
-      return StringComparer.Ordinal.Compare(x.Text, y.Text);
+      return String.Compare(x.Text, y.Text);
     }
   }
 
   internal static class SampleStructBenchmarks
   {
     private static readonly DateTime DateTimeValue = DateTime.UtcNow;
-    public static SampleStruct X { get; } = new SampleStruct(number: 1, dateTime: DateTimeValue, text: "X");
-    public static SampleStruct Y { get; } = new SampleStruct(number: 1, dateTime: DateTimeValue, text: "Y");
-    public static SampleStruct Z { get; } = new SampleStruct(number: 1, dateTime: DateTimeValue, text: "X");
-    public static SampleStructComparer Comparer { get; } = new SampleStructComparer();
+    public static SampleStruct Item1_1 { get; } = new(number: 1, dateTime: DateTimeValue, text: "Item1");
+    public static SampleStruct Item1_2 { get; } = new(number: 1, dateTime: DateTimeValue, text: "Item1");
+    public static SampleStruct Item2 { get; } = new(number: 1, dateTime: DateTimeValue, text: "Item2");
+
+    public static SampleStruct[] AllItems = { Item1_1, Item1_2, Item2, };
+
+    public static SampleStructComparer Comparer { get; } = new();
+
     public static ComparerBuilder<SampleStruct> ComparerBuilder { get; } = new ComparerBuilder<SampleStruct>()
       .Add(item => item.Number)
       .Add(item => item.NullableDateTime)
-      .Add(item => item.Text, StringComparer.Ordinal);
+      .Add(item => item.Text);
+
+    public static IFullComparer<SampleStruct> NitoFullComparer { get; } = Nito.Comparers.ComparerBuilder.For<SampleStruct>()
+      .OrderBy(p => p.Number)
+      .ThenBy(p => p.NullableDateTime)
+      .ThenBy(p => p.Text);
+
+    public static TestComparers<SampleStruct> AllComparers { get; } = new(Comparer, Comparer, ComparerBuilder, NitoFullComparer);
   }
 
   public class SampleStructEqualityComparerEqualBenchmarks : EqualityComparerEqualBenchmarks<SampleStruct>
   {
-    public SampleStructEqualityComparerEqualBenchmarks() : base(SampleStructBenchmarks.Comparer, SampleStructBenchmarks.ComparerBuilder, SampleStructBenchmarks.X, SampleStructBenchmarks.Z, SampleStructBenchmarks.Y) { }
+    public SampleStructEqualityComparerEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
   }
 
   public class SampleStructEqualityComparerNotEqualBenchmarks : EqualityComparerNotEqualBenchmarks<SampleStruct>
   {
-    public SampleStructEqualityComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.Comparer, SampleStructBenchmarks.ComparerBuilder, SampleStructBenchmarks.X, SampleStructBenchmarks.Z, SampleStructBenchmarks.Y) { }
+    public SampleStructEqualityComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
   }
 
   public class SampleStructEqualityComparerGetHashCodeBenchmarks : EqualityComparerGetHashCodeBenchmarks<SampleStruct>
   {
-    public SampleStructEqualityComparerGetHashCodeBenchmarks() : base(SampleStructBenchmarks.Comparer, SampleStructBenchmarks.ComparerBuilder, SampleStructBenchmarks.X, SampleStructBenchmarks.Z, SampleStructBenchmarks.Y) { }
+    public SampleStructEqualityComparerGetHashCodeBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
   }
 
   public class SampleStructComparerEqualBenchmarks : ComparerEqualBenchmarks<SampleStruct>
   {
-    public SampleStructComparerEqualBenchmarks() : base(SampleStructBenchmarks.Comparer, SampleStructBenchmarks.ComparerBuilder, SampleStructBenchmarks.X, SampleStructBenchmarks.Z, SampleStructBenchmarks.Y) { }
+    public SampleStructComparerEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
   }
 
   public class SampleStructComparerNotEqualBenchmarks : ComparerNotEqualBenchmarks<SampleStruct>
   {
-    public SampleStructComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.Comparer, SampleStructBenchmarks.ComparerBuilder, SampleStructBenchmarks.X, SampleStructBenchmarks.Z, SampleStructBenchmarks.Y) { }
+    public SampleStructComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
   }
 
   public class SampleStructComparerSortBenchmarks : ComparerSortBenchmarks<SampleStruct>
   {
-    public SampleStructComparerSortBenchmarks() : base(SampleStructBenchmarks.Comparer, SampleStructBenchmarks.ComparerBuilder, SampleStructBenchmarks.X, SampleStructBenchmarks.Z, SampleStructBenchmarks.Y) { }
+    public SampleStructComparerSortBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
   }
 }
