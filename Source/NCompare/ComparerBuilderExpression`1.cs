@@ -10,227 +10,133 @@ namespace NCompare
   using static Expression;
   using static ReplaceVisitor;
 
-  internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
+  internal sealed partial class ComparerBuilderExpression<T> : IComparerBuilderExpression
   {
-    private static readonly MethodInfo GetHashCodeMethodInfo = typeof(T).GetMethod(nameof(GetHashCode), BindingFlags.Public | BindingFlags.Instance, binder: null, Type.EmptyTypes, modifiers: null);
-    private static readonly Type[] InterceptTypeArguments = { typeof(T), };
+    private static readonly MethodInfo EqualityComparerEqualsMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.Equals));
+    private static readonly MethodInfo EqualityComparerGetHashCodeMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.GetHashCode));
+    private static readonly MethodInfo ComparerCompareMethod = GetComparerMethodInfo(typeof(IComparer<T>), nameof(IComparer<T>.Compare));
 
-    //private static readonly ConstantExpression NullEqualityComparer = Constant(null, typeof(IEqualityComparer<T>));
-    //private static readonly ConstantExpression NullComparer = Constant(null, typeof(IComparer<T>));
+    private static readonly Expression DefaultEqualityComparerExpression = Constant(EqualityComparer<T>.Default);
+    private static readonly Expression DefaultComparerExpression = Constant(Comparer<T>.Default);
 
-    private ComparerBuilderExpression(LambdaExpression expression, string filePath, int lineNumber, object? equalityComparer = null, object? comparer = null,
-      Expression? equalityComparerExpression = null, Expression? comparerExpression = null) {
+    private static readonly MethodInfo DefaultEqualityComparerEqualsMethod = new Func<T, T, bool>(EqualityComparer<T>.Default.Equals).Method;
+    private static readonly MethodInfo DefaultEqualityComparerGetHashCodeMethod = new Func<T, int>(EqualityComparer<T>.Default.GetHashCode).Method;
+    private static readonly MethodInfo DefaultComparerCompareMethod = new Func<T, T, int>(Comparer<T>.Default.Compare).Method;
+
+    private static readonly MethodInfo InterceptEqualsMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptEquals));
+    private static readonly MethodInfo InterceptGetHashCodeMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptGetHashCode));
+    private static readonly MethodInfo InterceptCompareMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptCompare));
+
+    public ComparerBuilderExpression(LambdaExpression expression, string? filePath, int lineNumber) {
       Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-
-      EqualityComparer = equalityComparer;
-      Comparer = comparer;
-
-      EqualityComparerExpression = equalityComparerExpression;
-      ComparerExpression = comparerExpression;
-
       FilePath = filePath ?? String.Empty;
       LineNumber = lineNumber;
     }
 
+    public ComparerBuilderExpression(LambdaExpression expression, IEqualityComparer<T>? equalityComparer, IComparer<T>? comparer, string? filePath, int lineNumber) : this(expression, filePath, lineNumber) {
+      EqualityComparer = equalityComparer;
+      Comparer = comparer;
+    }
+
     public LambdaExpression Expression { get; }
 
-    public object? EqualityComparer { get; }
-    public object? Comparer { get; }
+    public IEqualityComparer<T>? EqualityComparer { get; }
+    public IComparer<T>? Comparer { get; }
 
     public string FilePath { get; }
     public int LineNumber { get; }
 
-    private Expression? EqualityComparerExpression { get; }
-    private Expression? ComparerExpression { get; }
+    private static MethodInfo GetComparerMethodInfo(Type comparerType, string methodName)
+      => comparerType?.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly) ?? throw new ArgumentNullException(nameof(comparerType));
 
-    #region Create Methods
+    private static MethodInfo GetInterceptMethodInfo(string methodName)
+      => typeof(IComparerBuilderInterception).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).MakeGenericMethod(typeof(T));
 
-    public static ComparerBuilderExpression<T> Create(LambdaExpression expression, string filePath, int lineNumber) => new ComparerBuilderExpression<T>(expression, filePath, lineNumber);
+    private static Expression MakeEquals(Expression x, Expression y, IEqualityComparer<T>? comparer)
+      => comparer != null
+        ? Call(Constant(comparer), EqualityComparerEqualsMethod, x, y)
+        : Call(DefaultEqualityComparerExpression, DefaultEqualityComparerEqualsMethod, x, y);
 
-    public static ComparerBuilderExpression<T> Create(LambdaExpression expression, IEqualityComparer<T> equalityComparer, IComparer<T> comparisonComparer, string filePath, int lineNumber) {
-      var equalityComparerExpression = equalityComparer != null ? Constant(equalityComparer) : null;
-      var comparisonComparerExpression = comparisonComparer != null ? Constant(comparisonComparer) : null;
-      return new ComparerBuilderExpression<T>(expression, filePath, lineNumber, equalityComparer, comparisonComparer, equalityComparerExpression, comparisonComparerExpression);
-    }
+    private static Expression MakeGetHashCode(Expression obj, IEqualityComparer<T>? comparer)
+      => comparer != null
+        ? Call(Constant(comparer), EqualityComparerGetHashCodeMethod, obj)
+        : Call(DefaultEqualityComparerExpression, DefaultEqualityComparerGetHashCodeMethod, obj);
 
-    public static ComparerBuilderExpression<T> Create(LambdaExpression expression, Lazy<IEqualityComparer<T>> equalityComparer, Lazy<IComparer<T>> comparisonComparer, string filePath, int lineNumber) {
-      var equalityComparerExpression = ExpandLazyValueExpression(equalityComparer);
-      var comparisonComparerExpression = ExpandLazyValueExpression(comparisonComparer);
-      return new ComparerBuilderExpression<T>(expression, filePath, lineNumber, equalityComparer, comparisonComparer, equalityComparerExpression, comparisonComparerExpression);
-    }
+    private static Expression MakeCompare(Expression x, Expression y, IComparer<T>? comparer)
+      => comparer != null
+        ? Call(Constant(comparer), ComparerCompareMethod, x, y)
+        : Call(DefaultComparerExpression, DefaultComparerCompareMethod, x, y);
 
-    public static ComparerBuilderExpression<T> Create<TComparer>(LambdaExpression expression, Lazy<TComparer> comparer, string filePath, int lineNumber) where TComparer : IEqualityComparer<T>, IComparer<T> {
-      var comparerExpression = ExpandLazyValueExpression(comparer);
-      return new ComparerBuilderExpression<T>(expression, filePath, lineNumber, comparer, comparer, comparerExpression, comparerExpression);
-    }
-
-    public static ComparerBuilderExpression<T> Create(LambdaExpression expression, Lazy<EqualityComparer<T>> equalityComparer, Lazy<Comparer<T>> comparisonComparer, string filePath, int lineNumber) {
-      var equalityComparerExpression = ExpandLazyValueExpression(equalityComparer);
-      var comparisonComparerExpression = ExpandLazyValueExpression(comparisonComparer);
-      return new ComparerBuilderExpression<T>(expression, filePath, lineNumber, equalityComparer, comparisonComparer, equalityComparerExpression, comparisonComparerExpression);
-    }
-
-    private static Expression? ExpandLazyValueExpression<TValue>(Lazy<TValue>? value) => value != null ? Property(Constant(value), nameof(value.Value)) : null;
-
-    #endregion Create Methods
-
-    #region Comparison Helpers
-
-    private static Expression MakeEquals(Expression x, Expression y, Expression? comparer) {
-      if(x is null) {
-        throw new ArgumentNullException(nameof(x));
-      } else if(y is null) {
-        throw new ArgumentNullException(nameof(y));
-      }//if
-
-      if(comparer != null) {
-        // comparer.Equals(x, y);
-        return CallComparerMethod(comparer, nameof(IEqualityComparer<T>.Equals), x, y);
-      } else {
-        if(x.Type.IsValueType && y.Type.IsValueType) {
-          // x == y;
-          // TODO: Compare via IEquatable<> when operator== is not defined.
-          return Equal(x, y);
-        } else {
-          // Object.Equals(x, y);
-          return Call(ObjectEqualsMethodInfo, ToObject(x), ToObject(y));
-        }//if
-      }//if
-    }
-
-    private static Expression MakeGetHashCode(Expression obj, Expression? comparer) {
-      if(obj is null) {
-        throw new ArgumentNullException(nameof(obj));
-      }//if
-
-      if(comparer != null) {
-        // comparer.GetHashCode(obj);
-        return CallComparerMethod(comparer, nameof(IEqualityComparer<T>.GetHashCode), obj);
-      } else {
-        var method = obj.Type.IsValueType ? GetHashCodeMethodInfo : ObjectGetHashCodeMethodInfo;
-        var call = Call(obj, method);
-        if(obj.Type.IsValueType) {
-          // obj.GetHashCode();
-          return call;
-        } else {
-          // obj != null ? obj.GetHashCode() : 0
-          return Condition(IsNotNull(obj), call, Zero);
-        }//if
-      }//if
-    }
-
-    private static Expression MakeCompare(Expression x, Expression y, Expression? comparer) {
-      if(x is null) {
-        throw new ArgumentNullException(nameof(x));
-      } else if(y is null) {
-        throw new ArgumentNullException(nameof(y));
-      }//if
-
-      if(comparer != null) {
-        // comparer.Compare(x, y);
-        return CallComparerMethod(comparer, nameof(IComparer<T>.Compare), x, y);
-      } else {
-        // (x < y) ? -1 : (y < x ? 1 : 0);
-        var compare = Condition(LessThan(x, y), MinusOne, Condition(LessThan(y, x), One, Zero));
-        return (x.IsTypeNullable(), y.IsTypeNullable()) switch
-        {
-          (false, false) => compare,
-          (false, true) => Condition(IsNull(y), One, compare), // (object)y == null ? 1 : {compare};
-          (true, false) => Condition(IsNull(x), MinusOne, compare), // (object)x == null ? -1 : {compare};
-          // (object)x == null ? (y == null ? 0 : -1) : ((object)y == null ? 1 : {compare});
-          (true, true) => Condition(IsNull(x), Condition(IsNull(y), Zero, MinusOne), Condition(IsNull(y), One, compare)),
-        };
-      }//if
-    }
-
-    private static Expression CallComparerMethod(Expression comparer, string methodName, params Expression[] arguments) {
-      if(comparer is null) {
-        throw new ArgumentNullException(nameof(comparer));
-      }//if
-
-      const BindingFlags MethodLookup = BindingFlags.Public | BindingFlags.Instance;
-      var types = arguments != null && arguments.Any() ? Array.ConvertAll(arguments, item => item.Type) : Type.EmptyTypes;
-      // TODO: Cache methods
-      var method = comparer.Type.GetMethod(methodName, MethodLookup, binder: null, types, modifiers: null);
-      if(method is null) {
-        var message = $"Method \"{methodName}\" is not found in type \"{comparer.Type}\".";
-        throw new ArgumentException(message, nameof(methodName));
-      }//if
-
-      return Call(comparer, method, arguments);
-    }
-
-    #endregion Comparison Helpers
-
-    private Expression ApplyInterception(IComparerBuilderInterception interception, Type comparedType, string methodName,
-      Expression first, Expression? second, Expression? comparer, Func<Expression, Expression, Expression?, Expression> make) {
-      if(interception is null) {
-        throw new ArgumentNullException(nameof(interception));
-      } else if(first is null) {
-        throw new ArgumentNullException(nameof(first));
-      } else if(make is null) {
-        throw new ArgumentNullException(nameof(make));
+    private Expression ApplyInterception(IComparerBuilderContext context, MethodInfo method, Expression value, params Expression[] args) {
+      if(context is null) {
+        throw new ArgumentNullException(nameof(context));
+      } else if(context.Interception is null) {
+        throw new ArgumentException("Interception should be specified.", nameof(context));
+      } else if(method is null) {
+        throw new ArgumentNullException(nameof(method));
+      } else if(value is null) {
+        throw new ArgumentNullException(nameof(value));
+      } else if(args is null) {
+        throw new ArgumentNullException(nameof(args));
       }//if
 
       // return {interception}.{methodName}<{valueType}>({expression}, {x}[, {y}], args);
 
-      var instance = Constant(interception);
+      var instance = Constant(context.Interception);
 
-      var firstArg = Parameter(first.Type);
-      var assignFirst = Assign(firstArg, first);
-      var useSecond = second != null;
-      var secondArg = useSecond ? Parameter(second!.Type) : null;
-      var assignSecond = useSecond ? Assign(secondArg, second) : null;
-      var variables = useSecond ? new[] { firstArg, secondArg, } : new[] { firstArg, };
+      var variables = Array.ConvertAll(args, item => Parameter(item.Type));
+      var assigns = Enumerable.Zip(variables, args, (param, arg) => Assign(param, arg));
 
-      var valueArg = make(firstArg, secondArg!, comparer);
-      var interceptionArgs = new ComparerBuilderInterceptionArgs<T>(Expression, comparedType, EqualityComparer, Comparer, FilePath, LineNumber);
-      var args = Constant(interceptionArgs);
-      var arguments = useSecond
-        ? new[] { valueArg, firstArg, secondArg, args, }
-        : new[] { valueArg, firstArg, args, };
-      var call = Call(instance, methodName, InterceptTypeArguments, arguments);
-      var expressions = useSecond
-        ? new Expression[] { assignFirst, assignSecond!, call, }
-        : new Expression[] { assignFirst, call, };
+      var interceptionArgs = new ComparerBuilderInterceptionArgs<T>(Expression, context.ComparedType, EqualityComparer, Comparer, FilePath, LineNumber);
+      var interceptionArgsExpression = Constant(interceptionArgs);
 
-      return Block(valueArg.Type, variables, expressions);
+      var arguments = new List<Expression>(args.Length + 2) { value, };
+      arguments.AddRange(variables);
+      arguments.Add(interceptionArgsExpression);
+
+      var call = Call(instance, method, arguments);
+
+      var expressions = new List<Expression>(args.Length + 1);
+      expressions.AddRange(assigns);
+      expressions.Add(call);
+
+      return Block(value.Type, variables, expressions);
     }
 
     public override string ToString() => Expression.ToString();
 
     #region IComparerBuilderExpression Members
 
-    public Expression AsEquals(ParameterExpression x, ParameterExpression y, Type comparedType, IComparerBuilderInterception? interception) {
+    public Expression AsEquals(IComparerBuilderContext context, ParameterExpression x, ParameterExpression y) {
+      if(context is null) {
+        throw new ArgumentNullException(nameof(context));
+      }//if
+
       var first = ReplaceParameters(Expression, x);
       var second = ReplaceParameters(Expression, y);
-      if(interception is null) {
-        return MakeEquals(first, second, EqualityComparerExpression);
-      } else {
-        const string MethodName = nameof(IComparerBuilderInterception.InterceptEquals);
-        return ApplyInterception(interception, comparedType, MethodName, first, second, EqualityComparerExpression, make: MakeEquals);
-      }//if
+      var value = MakeEquals(first, second, EqualityComparer);
+      return context.Interception is null ? value : ApplyInterception(context, InterceptEqualsMethod, value, first, second);
     }
 
-    public Expression AsGetHashCode(ParameterExpression obj, Type comparedType, IComparerBuilderInterception? interception) {
-      var value = ReplaceParameters(Expression, obj);
-      if(interception is null) {
-        return MakeGetHashCode(value, EqualityComparerExpression);
-      } else {
-        const string MethodName = nameof(IComparerBuilderInterception.InterceptGetHashCode);
-        return ApplyInterception(interception, comparedType, MethodName, value, second: null, EqualityComparerExpression, make: (arg, _, comparer) => MakeGetHashCode(arg, comparer));
+    public Expression AsGetHashCode(IComparerBuilderContext context, ParameterExpression obj) {
+      if(context is null) {
+        throw new ArgumentNullException(nameof(context));
       }//if
+
+      var arg = ReplaceParameters(Expression, obj);
+      var value = MakeGetHashCode(arg, EqualityComparer);
+      return context.Interception is null ? value : ApplyInterception(context, InterceptGetHashCodeMethod, value, arg);
     }
 
-    public Expression AsCompare(ParameterExpression x, ParameterExpression y, Type comparedType, IComparerBuilderInterception? interception) {
+    public Expression AsCompare(IComparerBuilderContext context, ParameterExpression x, ParameterExpression y) {
+      if(context is null) {
+        throw new ArgumentNullException(nameof(context));
+      }//if
+
       var first = ReplaceParameters(Expression, x);
       var second = ReplaceParameters(Expression, y);
-      if(interception is null) {
-        return MakeCompare(first, second, ComparerExpression);
-      } else {
-        const string MethodName = nameof(IComparerBuilderInterception.InterceptCompare);
-        return ApplyInterception(interception, comparedType, MethodName, first, second, ComparerExpression, make: MakeCompare);
-      }//if
+      var value = MakeCompare(first, second, Comparer);
+      return context.Interception is null ? value : ApplyInterception(context, InterceptCompareMethod, value, first, second);
     }
 
     #endregion IComparerBuilderExpression Members

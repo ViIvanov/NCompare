@@ -32,8 +32,8 @@ namespace NCompare
 
       if(expression.IsTypeByReference()) {
         return ReferenceEqual(expression, Null);
-      } else {
-        return Equal(expression, Null); // Why not "False"?
+      } else { // Nullable value type
+        return Equal(expression, Null);
       }//if
     }
 
@@ -44,30 +44,25 @@ namespace NCompare
 
       if(expression.IsTypeByReference()) {
         return ReferenceNotEqual(expression, Null);
-      } else {
-        return NotEqual(expression, Null); // Why not "True" ?
+      } else { // Nullable value type
+        return NotEqual(expression, Null);
       }//if
     }
 
-    public static Expression ToObject(Expression expression) {
-      if(expression is null) {
-        throw new ArgumentNullException(nameof(expression));
-      }//if
+    public static Expression ToObject(Expression expression)
+      => expression is not null
+        ? expression.IsTypeByReference() ? expression : Convert(expression, typeof(object))
+        : throw new ArgumentNullException(nameof(expression));
 
-      if(expression.IsTypeByReference()) {
-        return expression;
-      } else {
-        return Convert(expression, typeof(object));
-      }//if
-    }
+    public static bool IsTypeByReference(this Expression expression)
+      => expression is not null
+        ? IsTypeByReference(expression.Type)
+        : throw new ArgumentNullException(nameof(expression));
 
-    public static bool IsTypeByReference(this Expression expression) {
-      if(expression is null) {
-        throw new ArgumentNullException(nameof(expression));
-      }//if
-
-      return IsTypeByReference(expression.Type);
-    }
+    public static bool IsTypeByReference(this Type type)
+      => type is not null
+        ? type.IsClass || type.IsInterface
+        : throw new ArgumentNullException(nameof(type));
 
     public static bool IsTypeNullable(this Expression expression) {
       if(expression is null) {
@@ -78,12 +73,12 @@ namespace NCompare
       return type.IsTypeByReference() || type.IsValueType && Nullable.GetUnderlyingType(type) != null;
     }
 
-    private static bool IsTypeByReference(this Type type) {
+    public static bool IsTypeNullable(this Type type) {
       if(type is null) {
         throw new ArgumentNullException(nameof(type));
       }//if
 
-      return type.IsClass || type.IsInterface;
+      return type.IsTypeByReference() || type.IsValueType && Nullable.GetUnderlyingType(type) != null;
     }
   }
 }

@@ -10,8 +10,8 @@ namespace NCompare
   using static Expression;
   using static ComparerBuilder;
 
-  [DebuggerDisplay("{DebuggerDisplay}")]
-  public class ComparerBuilder<T>
+  [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ", nq}")]
+  public class ComparerBuilder<T> : IComparerBuilderContext
   {
     #region Cached Expression and Reflection objects
 
@@ -24,24 +24,37 @@ namespace NCompare
 
     #endregion Cached Expression and Reflection objects
 
-    public ComparerBuilder() : this(expressions: new List<IComparerBuilderExpression>()) { }
+    public ComparerBuilder() : this(expressions: new()) { }
 
-    public ComparerBuilder(IComparerBuilderInterception interception) : this(expressions: new List<IComparerBuilderExpression>(), interception) { }
+    public ComparerBuilder(IComparerBuilderInterception? interception) : this(expressions: new(), interception) { }
 
     private ComparerBuilder(List<IComparerBuilderExpression> expressions, IComparerBuilderInterception? interception = null) {
       Expressions = expressions ?? throw new ArgumentNullException(nameof(expressions));
       Interception = interception;
+
+      EqualityComparer = new(this);
+      Comparer = new(this);
     }
 
     private List<IComparerBuilderExpression> Expressions { get; }
     public IComparerBuilderInterception? Interception { get; }
+
+    Type IComparerBuilderContext.ComparedType => ComparedType;
 
     public bool IsEmpty => Expressions.Count == 0;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay => $"Expressions: {Expressions.Count} item(s).";
 
+    private LazyEqualityComparer EqualityComparer { get; }
+    private LazyComparer Comparer { get; }
+
     private ComparerBuilder<T> Add(IComparerBuilderExpression expression) {
+      if(EqualityComparer.IsValueCreated || Comparer.IsValueCreated) {
+        const string Message = "Comparer(s) already created.";
+        throw new InvalidOperationException(Message);
+      }//if
+
       Expressions.Add(expression ?? throw new ArgumentNullException(nameof(expression)));
       return this;
     }
@@ -49,49 +62,28 @@ namespace NCompare
     #region Add Overloads
 
     public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
-      var value = ComparerBuilderExpression<TValue>.Create(expression, filePath!, lineNumber);
+      var value = ComparerBuilderExpression.Create(expression, filePath, lineNumber);
       return Add(value);
     }
 
-    public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, IEqualityComparer<TValue>? equalityComparer, IComparer<TValue>? comparisonComparer = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
+    public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, IEqualityComparer<TValue>? equalityComparer, IComparer<TValue>? comparer = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
       var equalityComparerOrDefault = equalityComparer ?? EqualityComparer<TValue>.Default;
-      var comparisonComparerOrDefault = comparisonComparer ?? Comparer<TValue>.Default;
-      var value = ComparerBuilderExpression.Create(expression, equalityComparerOrDefault, comparisonComparerOrDefault, filePath!, lineNumber);
+      var comparerOrDefault = comparer ?? Comparer<TValue>.Default;
+      var value = ComparerBuilderExpression.Create(expression, equalityComparerOrDefault, comparerOrDefault, filePath, lineNumber);
       return Add(value);
     }
 
-    public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, Lazy<IEqualityComparer<TValue>>? equalityComparer, Lazy<IComparer<TValue>>? comparisonComparer = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
-      var equalityComparerOrDefault = equalityComparer ?? LazyComparers<TValue>.DefaultInterfaceEqualityComparer;
-      var comparisonComparerOrDefault = comparisonComparer ?? LazyComparers<TValue>.DefaultInterfaceComparer;
-      var value = ComparerBuilderExpression.Create(expression, equalityComparerOrDefault, comparisonComparerOrDefault, filePath!, lineNumber);
-      return Add(value);
-    }
+    public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, IComparer<TValue>? comparer, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
+      => Add(expression, equalityComparer: null, comparer, filePath, lineNumber);
 
-    public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, Lazy<EqualityComparer<TValue>>? equalityComparer, Lazy<Comparer<TValue>>? comparisonComparer = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
-      var equalityComparerOrDefault = equalityComparer ?? LazyComparers<TValue>.DefaultClassEqualityComparer;
-      var comparisonComparerOrDefault = comparisonComparer ?? LazyComparers<TValue>.DefaultClassComparer;
-      var value = ComparerBuilderExpression.Create(expression, equalityComparerOrDefault, comparisonComparerOrDefault, filePath!, lineNumber);
-      return Add(value);
-    }
+    public ComparerBuilder<T> Add<TValue, TComparer>(Expression<Func<T, TValue>> expression, TComparer comparer, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) where TComparer : IEqualityComparer<TValue>, IComparer<TValue>
+      => Add(expression, comparer, comparer, filePath, lineNumber);
 
-    public ComparerBuilder<T> Add<TValue, TComparer>(Expression<Func<T, TValue>> expression, Lazy<TComparer> comparer, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) where TComparer : IEqualityComparer<TValue>, IComparer<TValue> {
-      var value = ComparerBuilderExpression<TValue>.Create(expression, comparer, filePath!, lineNumber);
-      return Add(value);
-    }
+    public ComparerBuilder<T> Add(Expression<Func<T, T>> expression, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
+      => Add(expression, EqualityComparer, Comparer, filePath, lineNumber);
 
-    public ComparerBuilder<T> Add(Expression<Func<T, T>> expression) {
-      var value = new RecursiveComparerBuilderExpression<T>(expression, this);
-      return Add(value);
-    }
-
-    public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, ComparerBuilder<TValue> builder) {
-      if((object)builder == this) {
-        throw new ArgumentException($"Recursive comparer added: \"{builder}\".", paramName: nameof(builder));
-      }//if
-
-      var value = new NestedComparerBuilderExpression<TValue>(expression, builder);
-      return Add(value);
-    }
+    public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, ComparerBuilder<TValue> builder, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
+      => Add(expression, builder?.EqualityComparer ?? throw new ArgumentNullException(nameof(builder)), builder?.Comparer, filePath, lineNumber);
 
     public ComparerBuilder<T> Add(ComparerBuilder<T> other) {
       if(other is null) {
@@ -104,14 +96,14 @@ namespace NCompare
 
     #endregion Add Overloads
 
-    public ComparerBuilder<TDerived> ConvertTo<TDerived>() where TDerived : T => new ComparerBuilder<TDerived>(Expressions.ToList(), Interception);
+    public ComparerBuilder<TDerived> ConvertTo<TDerived>() where TDerived : T => new(Expressions.ToList(), Interception);
 
     #region Build Methods
 
-    internal Expression<Func<T, T, bool>> BuildEquals(ParameterExpression x, ParameterExpression y, Type comparedType, IComparerBuilderInterception? interception = null) {
+    internal Expression<Func<T, T, bool>> BuildEquals(ParameterExpression x, ParameterExpression y) {
       var expressions =
         from item in Expressions
-        let expr = item.AsEquals(x, y, comparedType, interception)
+        let expr = item.AsEquals(this, x, y)
         where expr != null
         select expr;
       var expression = expressions.Aggregate(AndAlso);
@@ -122,10 +114,10 @@ namespace NCompare
       return Lambda<Func<T, T, bool>>(body, x, y);
     }
 
-    internal Expression<Func<T, int>> BuildGetHashCode(ParameterExpression obj, Type comparedType, IComparerBuilderInterception? interception = null) {
+    internal Expression<Func<T, int>> BuildGetHashCode(ParameterExpression obj) {
       var expressions =
         from item in Expressions
-        let expr = item.AsGetHashCode(obj, comparedType, interception)
+        let expr = item.AsGetHashCode(this, obj)
         where expr != null
         select expr;
       var list = expressions.ToList();
@@ -138,8 +130,8 @@ namespace NCompare
       return Lambda<Func<T, int>>(body, obj);
     }
 
-    internal Expression<Func<T, T, int>> BuildCompare(ParameterExpression x, ParameterExpression y, Type comparedType, IComparerBuilderInterception? interception = null) {
-      var reverse = Expressions.Select(item => item.AsCompare(x, y, comparedType, interception)).Reverse().ToList();
+    internal Expression<Func<T, T, int>> BuildCompare(ParameterExpression x, ParameterExpression y) {
+      var reverse = Expressions.Select(item => item.AsCompare(this, x, y)).Reverse().ToList();
 
       var labelTargetReturn = Label(typeof(int));
       var labelZero = Label(labelTargetReturn, Zero);
@@ -175,23 +167,71 @@ namespace NCompare
       }//if
     }
 
-    public EqualityComparer<T> CreateEqualityComparer(IComparerBuilderInterception? interception = null) {
+    private EqualityComparer<T> BuildEqualityComparer() {
       ThrowIfEmpty();
-      var equals = BuildEquals(X, Y, ComparedType, interception ?? Interception);
+
+      var equals = BuildEquals(X, Y);
       var equalsDelegate = equals.Compile();
-      var hashCode = BuildGetHashCode(Obj, ComparedType, interception ?? Interception);
+
+      var hashCode = BuildGetHashCode(Obj);
       var hashCodeDelegate = hashCode.Compile();
+
       return Comparers.Create(equalsDelegate, hashCodeDelegate);
     }
 
-    public Comparer<T> CreateComparer(IComparerBuilderInterception? interception = null) {
+    private Comparer<T> BuildComparer() {
       ThrowIfEmpty();
-      var compare = BuildCompare(X, Y, ComparedType, interception ?? Interception);
+
+      var compare = BuildCompare(X, Y);
       var compareDelegate = compare.Compile();
+
       return Comparers.Create(compareDelegate);
     }
 
-    public Lazy<EqualityComparer<T>> CreateLazyEqualityComparer() => Lazy.Create(() => CreateEqualityComparer());
-    public Lazy<Comparer<T>> CreateLazyComparer() => Lazy.Create(() => CreateComparer());
+    public EqualityComparer<T> CreateEqualityComparer() => EqualityComparer.Value;
+    public Comparer<T> CreateComparer() => Comparer.Value;
+
+    private sealed class LazyEqualityComparer : EqualityComparer<T>
+    {
+      public LazyEqualityComparer(ComparerBuilder<T> builder) {
+        Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+        LazyValue = new(() => Builder.BuildEqualityComparer());
+      }
+
+      private ComparerBuilder<T> Builder { get; }
+      private Lazy<EqualityComparer<T>> LazyValue { get; }
+
+      [DebuggerBrowsable(DebuggerBrowsableState.Never), DebuggerHidden]
+      public EqualityComparer<T> Value => LazyValue.Value;
+
+      public bool IsValueCreated => LazyValue.IsValueCreated;
+
+      public override bool Equals(T x, T y) => Value.Equals(x, y);
+      public override int GetHashCode(T obj) => Value.GetHashCode(obj);
+
+      public override bool Equals(object obj) => obj is LazyEqualityComparer other && other.Builder == Builder;
+      public override int GetHashCode() => Builder.GetHashCode();
+    }
+
+    private sealed class LazyComparer : Comparer<T>
+    {
+      public LazyComparer(ComparerBuilder<T> builder) {
+        Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+        LazyValue = new(() => Builder.BuildComparer());
+      }
+
+      private ComparerBuilder<T> Builder { get; }
+      private Lazy<Comparer<T>> LazyValue { get; }
+
+      [DebuggerBrowsable(DebuggerBrowsableState.Never), DebuggerHidden]
+      public Comparer<T> Value => LazyValue.Value;
+
+      public bool IsValueCreated => LazyValue.IsValueCreated;
+
+      public override int Compare(T x, T y) => Value.Compare(x, y);
+
+      public override bool Equals(object obj) => obj is LazyComparer other && other.Builder == Builder;
+      public override int GetHashCode() => Builder.GetHashCode();
+    }
   }
 }

@@ -4,11 +4,13 @@ using System.Linq.Expressions;
 
 namespace NCompare
 {
-  public sealed class ComparerBuilderInterceptionArgs<T>
+  public sealed class ComparerExpressionContext<T>
   {
-    internal ComparerBuilderInterceptionArgs(LambdaExpression expression, Type comparedType, IEqualityComparer<T>? equalityComparer, IComparer<T>? comparer, string filePath, int lineNumber) {
-      Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+    internal ComparerExpressionContext(LambdaExpression expression, Type comparedType,
+      IEqualityComparer<T> equalityComparer, IComparer<T>? comparer,
+      string? filePath, int lineNumber) {
       ComparedType = comparedType ?? throw new ArgumentNullException(nameof(comparedType));
+      Expression = expression ?? throw new ArgumentNullException(nameof(expression));
       EqualityComparer = equalityComparer;
       Comparer = comparer;
       FilePath = filePath ?? String.Empty;

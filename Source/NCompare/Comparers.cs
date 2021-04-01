@@ -8,7 +8,7 @@ namespace NCompare
     public static EqualityComparer<T> Create<T>(Func<T, T, bool> equals, Func<T, int> hashCode) => new MethodEqualityComparer<T>(equals, hashCode);
 
     public static Comparer<T> Create<T>(Func<T, T, int> compare)
-      => compare is object ? Comparer<T>.Create((x, y) => compare(x, y)) : throw new ArgumentNullException(nameof(compare));
+      => compare is not null ? Comparer<T>.Create((x, y) => compare(x, y)) : throw new ArgumentNullException(nameof(compare));
 
     public static int RotateRight(int value, int places) {
       if((places &= 0x1F) == 0) {
@@ -35,7 +35,7 @@ namespace NCompare
 
       public override bool Equals(object obj) => obj is MethodEqualityComparer<T> other
         && other.EqualsMethod == EqualsMethod && other.GetHashCodeMethod == GetHashCodeMethod;
-      //public override int GetHashCode() => RotateRight(EqualsMethod.GetHashCode(), 0) ^ RotateRight(GetHashCodeMethod.GetHashCode(), 1);
+
       public override int GetHashCode() => (EqualsMethod, GetHashCodeMethod).GetHashCode();
     }
   }

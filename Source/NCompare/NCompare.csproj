@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework Condition=" '$(ExcludeDotNetFramework)' == 'true' ">netstandard2.0</TargetFramework>
     <TargetFrameworks Condition=" '$(ExcludeDotNetFramework)' != 'true' ">netstandard2.0; net461</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ProjectDir)..\StrongName.snk</AssemblyOriginatorKeyFile>

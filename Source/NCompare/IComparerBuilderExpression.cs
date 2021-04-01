@@ -5,8 +5,8 @@ namespace NCompare
 {
   internal interface IComparerBuilderExpression
   {
-    Expression AsEquals(ParameterExpression x, ParameterExpression y, Type comparedType, IComparerBuilderInterception? interception = null);
-    Expression AsGetHashCode(ParameterExpression obj, Type comparedType, IComparerBuilderInterception? interception = null);
-    Expression AsCompare(ParameterExpression x, ParameterExpression y, Type comparedType, IComparerBuilderInterception? interception = null);
+    Expression AsEquals(IComparerBuilderContext context, ParameterExpression x, ParameterExpression y);
+    Expression AsGetHashCode(IComparerBuilderContext context, ParameterExpression obj);
+    Expression AsCompare(IComparerBuilderContext context, ParameterExpression x, ParameterExpression y);
   }
 }
