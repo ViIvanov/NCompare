@@ -3,15 +3,15 @@
   <PropertyGroup>
     <TargetFramework Condition=" '$(ExcludeDotNetFramework)' == 'true' ">netstandard2.0</TargetFramework>
     <TargetFrameworks Condition=" '$(ExcludeDotNetFramework)' != 'true' ">netstandard2.0; net461</TargetFrameworks>
-    <LangVersion>preview</LangVersion>
-    <Nullable>enable</Nullable>
+    <LangVersion>Preview</LangVersion>
+    <Nullable>Enable</Nullable>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ProjectDir)..\StrongName.snk</AssemblyOriginatorKeyFile>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
-    <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <AnalysisLevel>5.0</AnalysisLevel>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>Latest</AnalysisLevel>
+    <PublishRepositoryUrl>True</PublishRepositoryUrl>
+    <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/ViIvanov/NCompare/</PackageProjectUrl>
