@@ -96,16 +96,12 @@ namespace NCompare
 
     #endregion Add Overloads
 
-    public ComparerBuilder<TDerived> ConvertTo<TDerived>() where TDerived : T => new(Expressions.ToList(), Interception);
+    public ComparerBuilder<TDerived> ConvertTo<TDerived>() where TDerived : T => new(new(Expressions), Interception);
 
     #region Build Methods
 
     internal Expression<Func<T, T, bool>> BuildEquals(ParameterExpression x, ParameterExpression y) {
-      var expressions =
-        from item in Expressions
-        let expr = item.AsEquals(this, x, y)
-        where expr != null
-        select expr;
+      var expressions = Expressions.ConvertAll(item => item.AsEquals(this, x, y));
       var expression = expressions.Aggregate(AndAlso);
       var body = IsValueType
         ? expression
@@ -115,14 +111,9 @@ namespace NCompare
     }
 
     internal Expression<Func<T, int>> BuildGetHashCode(ParameterExpression obj) {
-      var expressions =
-        from item in Expressions
-        let expr = item.AsGetHashCode(this, obj)
-        where expr != null
-        select expr;
-      var list = expressions.ToList();
-      var expression = list.Skip(1).Select((item, index) => Tuple.Create(item, index + 1))
-        .Aggregate(list.First(), (acc, item) => ExclusiveOr(acc, Call(RotateRightDelegate.Method, item.Item1, Constant(item.Item2))));
+      var expressions = Expressions.ConvertAll(item => item.AsGetHashCode(this, obj));
+      var expression = expressions.Skip(1).Select((item, index) => (Expression: item, Index: index + 1))
+        .Aggregate(expressions[0], (acc, item) => ExclusiveOr(acc, Call(RotateRightDelegate.Method, item.Expression, Constant(item.Index))));
       var body = IsValueType
         ? expression
         // ((object)obj == null) ? 0 : expression;
@@ -131,17 +122,11 @@ namespace NCompare
     }
 
     internal Expression<Comparison<T>> BuildCompare(ParameterExpression x, ParameterExpression y) {
-      var reverse = Expressions.Select(item => item.AsCompare(this, x, y)).Reverse().ToList();
+      var expressions = Expressions.ConvertAll(item => item.AsCompare(this, x, y));
+      expressions.Reverse();
 
-      var labelTargetReturn = Label(typeof(int));
-      var labelZero = Label(labelTargetReturn, Zero);
-      var returnZero = Return(labelTargetReturn, Zero);
-      var returnOne = Return(labelTargetReturn, One);
-      var returnMinusOne = Return(labelTargetReturn, MinusOne);
-      var returnCompare = Return(labelTargetReturn, Compare);
-
-      Expression seed = Return(labelTargetReturn, reverse.First());
-      var expression = reverse.Skip(1).Aggregate(seed, (acc, value) => IfThenElse(NotEqual(Assign(Compare, value), Zero), returnCompare, acc));
+      Expression seed = Return(LabelTargetReturn, expressions[0]);
+      var expression = expressions.Skip(1).Aggregate(seed, (acc, value) => IfThenElse(NotEqual(Assign(Compare, value), Zero), ReturnCompare, acc));
       var body = IsValueType
         ? expression
         // if((object)x == (object)y) {
@@ -153,8 +138,8 @@ namespace NCompare
         // } else {
         //   return expression;
         // }//if
-        : IfThenElse(ReferenceEqual(x, y), returnZero, IfThenElse(IsNull(x), returnMinusOne, IfThenElse(IsNull(y), returnOne, expression)));
-      var block = Block(CompareVariables, body, labelZero);
+        : IfThenElse(ReferenceEqual(x, y), ReturnZero, IfThenElse(IsNull(x), ReturnMinusOne, IfThenElse(IsNull(y), ReturnOne, expression)));
+      var block = Block(CompareVariables, body, LabelZero);
       return Lambda<Comparison<T>>(block, x, y);
     }
 

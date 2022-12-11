@@ -20,6 +20,13 @@ namespace NCompare
     public static ParameterExpression Compare { get; } = Parameter(typeof(int));
     public static IReadOnlyList<ParameterExpression> CompareVariables { get; } = new ReadOnlyCollection<ParameterExpression>(new[] { Compare, });
 
+    public static LabelTarget LabelTargetReturn { get; } = Label(typeof(int));
+    public static Expression LabelZero { get; } = Label(LabelTargetReturn, Zero);
+    public static Expression ReturnZero { get; } = Return(LabelTargetReturn, Zero);
+    public static Expression ReturnOne { get; } = Return(LabelTargetReturn, One);
+    public static Expression ReturnMinusOne { get; } = Return(LabelTargetReturn, MinusOne);
+    public static Expression ReturnCompare { get; } = Return(LabelTargetReturn, Compare);
+
     public static Func<int, int, int> RotateRightDelegate { get; } = Comparers.RotateRight;
 
     public static MethodInfo ObjectEqualsMethodInfo { get; } = new Func<object, object, bool>(Equals).Method;
