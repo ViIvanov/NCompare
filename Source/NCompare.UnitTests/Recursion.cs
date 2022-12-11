@@ -103,8 +103,7 @@ namespace NCompare.UnitTests
 
       public override int GetHashCode() => Value is null ? 0 : EqualityComparer<T>.Default.GetHashCode(Value);
 
-      public bool Equals(LinkedListNode<T>? other) =>
-        other is object && EqualityComparer<T>.Default.Equals(other.Value, Value) && other.Depth == Depth && Equals(other.Next, Next);
+      public bool Equals(LinkedListNode<T>? other) => other is not null && EqualityComparer<T>.Default.Equals(other.Value, Value) && other.Depth == Depth && Equals(other.Next, Next);
     }
 
     private sealed class LinkedListNodeEqualityComparer<T> : EqualityComparer<LinkedListNode<T>>
@@ -116,7 +115,7 @@ namespace NCompare.UnitTests
           while(true) {
             if(ReferenceEquals(x, y)) {
               return true;
-            } else if(x is object && y is object && EqualityComparer<T>.Default.Equals(x.Value, y.Value) && x.Depth == y.Depth) {
+            } else if(x is not null && y is not null && EqualityComparer<T>.Default.Equals(x.Value, y.Value) && x.Depth == y.Depth) {
               (x, y) = (x.Next, y.Next);
             } else {
               return false;
@@ -126,7 +125,7 @@ namespace NCompare.UnitTests
       }
 
       public override int GetHashCode(LinkedListNode<T>? obj)
-        => obj is object ? (obj.Value is null ? -31 : EqualityComparer<T>.Default.GetHashCode(obj.Value)) : -13;
+        => obj is not null ? (obj.Value is null ? -31 : EqualityComparer<T>.Default.GetHashCode(obj.Value)) : -13;
     }
 
     //internal sealed class Interceptor : IComparerBuilderInterception
