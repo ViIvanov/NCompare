@@ -52,17 +52,17 @@ namespace NCompare
       => typeof(IComparerBuilderInterception).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).MakeGenericMethod(typeof(T));
 
     private static Expression MakeEquals(Expression x, Expression y, IEqualityComparer<T>? comparer)
-      => comparer != null
+      => comparer is not null
         ? Call(Constant(comparer), EqualityComparerEqualsMethod, x, y)
         : Call(DefaultEqualityComparerExpression, DefaultEqualityComparerEqualsMethod, x, y);
 
     private static Expression MakeGetHashCode(Expression obj, IEqualityComparer<T>? comparer)
-      => comparer != null
+      => comparer is not null
         ? Call(Constant(comparer), EqualityComparerGetHashCodeMethod, obj)
         : Call(DefaultEqualityComparerExpression, DefaultEqualityComparerGetHashCodeMethod, obj);
 
     private static Expression MakeCompare(Expression x, Expression y, IComparer<T>? comparer)
-      => comparer != null
+      => comparer is not null
         ? Call(Constant(comparer), ComparerCompareMethod, x, y)
         : Call(DefaultComparerExpression, DefaultComparerCompareMethod, x, y);
 
