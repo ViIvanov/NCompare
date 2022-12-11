@@ -9,7 +9,7 @@ namespace NCompare
   using static Expression;
   using static ReplaceVisitor;
 
-  internal sealed partial class ComparerBuilderExpression<T> : IComparerBuilderExpression
+  internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
   {
     private static readonly MethodInfo EqualityComparerEqualsMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.Equals));
     private static readonly MethodInfo EqualityComparerGetHashCodeMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.GetHashCode));
