@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace NCompare
+namespace NCompare;
+
+internal interface IComparerBuilderContext
 {
-  internal interface IComparerBuilderContext
-  {
-    Type ComparedType { get; }
-    IComparerBuilderInterception? Interception { get; }
-  }
+  Type ComparedType { get; }
+  IComparerBuilderInterception? Interception { get; }
 }
