@@ -61,29 +61,35 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
 
   #region Add Overloads
 
-  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
-    var value = ComparerBuilderExpression.Create(expression, filePath, lineNumber);
+  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression,
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
+    var value = ComparerBuilderExpression.Create(expression, expressionText, filePath, lineNumber);
     return Add(value);
   }
 
-  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, IEqualityComparer<TValue>? equalityComparer, IComparer<TValue>? comparer = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
+  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, IEqualityComparer<TValue>? equalityComparer, IComparer<TValue>? comparer = null,
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
     var equalityComparerOrDefault = equalityComparer ?? EqualityComparer<TValue>.Default;
     var comparerOrDefault = comparer ?? Comparer<TValue>.Default;
-    var value = ComparerBuilderExpression.Create(expression, equalityComparerOrDefault, comparerOrDefault, filePath, lineNumber);
+    var value = ComparerBuilderExpression.Create(expression, equalityComparerOrDefault, comparerOrDefault, expressionText, filePath, lineNumber);
     return Add(value);
   }
 
-  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, IComparer<TValue>? comparer, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
-    => Add(expression, equalityComparer: null, comparer, filePath, lineNumber);
+  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, IComparer<TValue>? comparer,
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
+    => Add(expression, equalityComparer: null, comparer, expressionText, filePath, lineNumber);
 
-  public ComparerBuilder<T> Add<TValue, TComparer>(Expression<Func<T, TValue>> expression, TComparer comparer, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) where TComparer : IEqualityComparer<TValue>, IComparer<TValue>
-    => Add(expression, comparer, comparer, filePath, lineNumber);
+  public ComparerBuilder<T> Add<TValue, TComparer>(Expression<Func<T, TValue>> expression, TComparer comparer,
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) where TComparer : IEqualityComparer<TValue>, IComparer<TValue>
+    => Add(expression, comparer, comparer, expressionText, filePath, lineNumber);
 
-  public ComparerBuilder<T> Add(Expression<Func<T, T>> expression, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
-    => Add(expression, EqualityComparer, Comparer, filePath, lineNumber);
+  public ComparerBuilder<T> Add(Expression<Func<T, T>> expression,
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
+    => Add(expression, EqualityComparer, Comparer, expressionText, filePath, lineNumber);
 
-  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, ComparerBuilder<TValue> builder, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
-    => Add(expression, builder?.EqualityComparer ?? throw new ArgumentNullException(nameof(builder)), builder?.Comparer, filePath, lineNumber);
+  public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue>> expression, ComparerBuilder<TValue> builder,
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
+    => Add(expression, builder?.EqualityComparer ?? throw new ArgumentNullException(nameof(builder)), builder?.Comparer, expressionText, filePath, lineNumber);
 
   public ComparerBuilder<T> Add(ComparerBuilder<T> other) {
     if(other is null) {

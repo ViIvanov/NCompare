@@ -26,13 +26,16 @@ internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
   private static readonly MethodInfo InterceptGetHashCodeMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptGetHashCode));
   private static readonly MethodInfo InterceptCompareMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptCompare));
 
-  public ComparerBuilderExpression(LambdaExpression expression, string? filePath, int lineNumber) {
+  public ComparerBuilderExpression(LambdaExpression expression, string? expressionText, string? filePath, int lineNumber) {
     Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+    ExpressionText = expressionText ?? String.Empty;
     FilePath = filePath ?? String.Empty;
     LineNumber = lineNumber;
   }
 
-  public ComparerBuilderExpression(LambdaExpression expression, IEqualityComparer<T>? equalityComparer, IComparer<T>? comparer, string? filePath, int lineNumber) : this(expression, filePath, lineNumber) {
+  public ComparerBuilderExpression(LambdaExpression expression, IEqualityComparer<T>? equalityComparer, IComparer<T>? comparer,
+    string? expressionText, string? filePath, int lineNumber)
+    : this(expression, expressionText, filePath, lineNumber) {
     EqualityComparer = equalityComparer;
     Comparer = comparer;
   }
@@ -42,6 +45,7 @@ internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
   public IEqualityComparer<T>? EqualityComparer { get; }
   public IComparer<T>? Comparer { get; }
 
+  public string ExpressionText { get; }
   public string FilePath { get; }
   public int LineNumber { get; }
 
@@ -86,7 +90,7 @@ internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
     var variables = Array.ConvertAll(args, item => Parameter(item.Type));
     var assigns = Enumerable.Zip(variables, args, (param, arg) => Assign(param, arg));
 
-    var interceptionArgs = new ComparerBuilderInterceptionArgs<T>(Expression, context.ComparedType, EqualityComparer, Comparer, FilePath, LineNumber);
+    var interceptionArgs = new ComparerBuilderInterceptionArgs<T>(Expression, context.ComparedType, EqualityComparer, Comparer, ExpressionText, FilePath, LineNumber);
     var interceptionArgsExpression = Constant(interceptionArgs);
 
     var arguments = new List<Expression>(args.Length + 2) { value, };
