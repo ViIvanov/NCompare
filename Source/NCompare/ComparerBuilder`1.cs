@@ -10,7 +10,7 @@ namespace NCompare;
 using static Expression;
 using static ComparerBuilder;
 
-[DebuggerDisplay("{" + nameof(DebuggerDisplay) + ", nq}")]
+[DebuggerDisplay($"{{{nameof(DebuggerDisplay)}, nq}}")]
 public sealed class ComparerBuilder<T> : IComparerBuilderContext
 {
   #region Cached Expression and Reflection objects
@@ -37,7 +37,7 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   }
 
   private List<IComparerBuilderExpression> Expressions { get; }
-  public IComparerBuilderInterception? Interception { get; }
+  public IComparerBuilderInterception? Interception { get; init; }
 
   Type IComparerBuilderContext.ComparedType => ComparedType;
 
@@ -51,7 +51,7 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
 
   private ComparerBuilder<T> Add(IComparerBuilderExpression expression) {
     if(EqualityComparer.IsValueCreated || Comparer.IsValueCreated) {
-      const string Message = "Comparer(s) already created.";
+      const string Message = "Comparer(s) already created. It is not possible to modify created comparer(s).";
       throw new InvalidOperationException(Message);
     }//if
 
@@ -118,8 +118,8 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
 
   internal Expression<Func<T, int>> BuildGetHashCode(ParameterExpression obj) {
     var expressions = Expressions.ConvertAll(item => item.AsGetHashCode(this, obj));
-    var expression = expressions.Skip(1).Select((item, index) => (Expression: item, Index: index + 1))
-      .Aggregate(expressions[0], (acc, item) => ExclusiveOr(acc, Call(RotateRightDelegate.Method, item.Expression, Constant(item.Index))));
+    var expression = expressions.Skip(1).Select(static (item, index) => (Expression: item, Index: index + 1))
+      .Aggregate(expressions[0], static (acc, item) => ExclusiveOr(acc, Call(RotateRightDelegate.Method, item.Expression, Constant(item.Index))));
     var body = IsValueType
       ? expression
       // ((object)obj == null) ? 0 : expression;
@@ -132,7 +132,7 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
     expressions.Reverse();
 
     Expression seed = Return(LabelTargetReturn, expressions[0]);
-    var expression = expressions.Skip(1).Aggregate(seed, (acc, value) => IfThenElse(NotEqual(Assign(Compare, value), Zero), ReturnCompare, acc));
+    var expression = expressions.Skip(1).Aggregate(seed, static (acc, value) => IfThenElse(NotEqual(Assign(Compare, value), Zero), ReturnCompare, acc));
     var body = IsValueType
       ? expression
       // if((object)x == (object)y) {
@@ -186,7 +186,7 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   {
     public LazyEqualityComparer(ComparerBuilder<T> builder) {
       Builder = builder ?? throw new ArgumentNullException(nameof(builder));
-      LazyValue = new(() => Builder.BuildEqualityComparer());
+      LazyValue = new(Builder.BuildEqualityComparer);
     }
 
     private ComparerBuilder<T> Builder { get; }
@@ -208,7 +208,7 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   {
     public LazyComparer(ComparerBuilder<T> builder) {
       Builder = builder ?? throw new ArgumentNullException(nameof(builder));
-      LazyValue = new(() => Builder.BuildComparer());
+      LazyValue = new(Builder.BuildComparer);
     }
 
     private ComparerBuilder<T> Builder { get; }
