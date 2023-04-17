@@ -65,14 +65,18 @@ public sealed class General
       MyValue = new TValue { Value = 2, },
     };
 
-    var h = equalityComparer.GetHashCode(x);
+    var hx = equalityComparer.GetHashCode(x);
 
     var y = new TContainer {
       MyObject = new TObject { Value = 1, },
       MyValue = new TValue { Value = 2, },
     };
 
+    var hy = equalityComparer.GetHashCode(y);
+    Assert.AreEqual(hx, hy, "Hash codes is not equal");
+
     var b = equalityComparer.Equals(x, y);
+    Assert.IsTrue(b, "Equals returns unexpected value");
   }
 
   private class TContainer
@@ -111,10 +115,12 @@ public sealed class General
   {
     public int Value { get; set; }
 
+#pragma warning disable CA1061 // Do not hide base class methods
     public new bool Equals(object? other) {
       Assert.Fail($"{nameof(TObject)}::{nameof(Equals)}(object) called");
       return true;
     }
+#pragma warning restore CA1061 // Do not hide base class methods
 
     public new int GetHashCode() {
       Assert.Fail($"{nameof(TObject)}::{nameof(GetHashCode)}() called");
@@ -128,10 +134,10 @@ public sealed class General
   }
 
 #pragma warning disable CS0660, CS0661 // Type defines operator == or operator != but does not override Object.Equals(object o) / Object.GetHashCode()
-  private struct TValue
+  private readonly struct TValue
 #pragma warning restore CS0660, CS0661 // Type defines operator == or operator != but does not override Object.Equals(object o) / Object.GetHashCode()
   {
-    public int Value { get; set; }
+    public int Value { get; init; }
 
     public new bool Equals(object? other) {
       Assert.Fail($"{nameof(TValue)}::{nameof(Equals)}(object) called");
@@ -201,7 +207,7 @@ public sealed class General
     var ycomparer = ybuilder.CreateEqualityComparer();
 
     var x1 = new XObject { Text = "Simple X1", };
-    var x2 = new XObject { Text = "Zimple X2", };
+    var x2 = new XObject { Text = "Dimple X2", };
     var x3 = new XObject { Text = "simple X3", };
 
     TestEqualityComparer("x/1/2", x1, x2, expected: false, xcomparer);
@@ -221,7 +227,7 @@ public sealed class General
     TestEqualityComparer("y/1/null", y1, null, expected: false, ycomparer!);
 
     var x11 = new XObject { Text = "Complex X11", Y = y1, };
-    var x12 = new XObject { Text = "gomplex X12", Y = y2, };
+    var x12 = new XObject { Text = "flex X12", Y = y2, };
     var x13 = new XObject { Text = "complex X13", Y = y3, };
     var x14 = new XObject { Text = "complex X14", Y = y4, };
     var x15 = new XObject { Text = "complex X13", Y = y3, };

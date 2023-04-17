@@ -20,9 +20,7 @@ internal static class TestCompare
   }
 
   public static void TestEqualityComparer<T>(string title, T? x, T? y, bool expected, IEqualityComparer<T> equalityComparer) {
-    if(equalityComparer is null) {
-      throw new ArgumentNullException(nameof(equalityComparer));
-    }//if
+    ArgumentNullException.ThrowIfNull(equalityComparer);
 
     var xx = equalityComparer.Equals(x, x);
     Assert.IsTrue(xx, $"{title}: Equals({x}, {x}) failed");
@@ -56,9 +54,7 @@ internal static class TestCompare
   }
 
   public static void TestComparer<T>(string title, T? x, T? y, CompareResult expected, IComparer<T> comparer) {
-    if(comparer is null) {
-      throw new ArgumentNullException(nameof(comparer));
-    }//if
+    ArgumentNullException.ThrowIfNull(comparer);
 
     var xx = comparer.Compare(x, x);
     Assert.AreEqual(CompareResult.Equal, GetCompareResult(xx), $"{title}: Compare({x}, {x}) failed {xx}");
