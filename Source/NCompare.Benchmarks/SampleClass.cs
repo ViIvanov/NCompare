@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using BenchmarkDotNet.Attributes;
+
 using Nito.Comparers;
 
 namespace NCompare.Benchmarks;
@@ -14,7 +16,13 @@ public sealed class SampleClass : IEquatable<SampleClass>, IComparable<SampleCla
   public bool Equals(SampleClass? other)
     => other == this || other is not null && other.Number == Number && other.NullableDateTime == NullableDateTime && other.Text == Text;
 
+  public override bool Equals(object? obj) => Equals(obj as SampleClass);
+
+#if NETCOREAPP2_1_OR_GREATER
   public override int GetHashCode() => HashCode.Combine(Number, NullableDateTime, Text);
+#else
+  public override int GetHashCode() => Number.GetHashCode() ^ NullableDateTime.GetHashCode() ^ (Text?.GetHashCode() ?? 0);
+#endif // NETCOREAPP2_1_OR_GREATER
 
   public int CompareTo(SampleClass? other) {
     if(other is null) {
@@ -49,7 +57,11 @@ internal sealed class SampleClassComparer : IEqualityComparer<SampleClass>, ICom
     }//if
   }
 
+#if NETCOREAPP2_1_OR_GREATER
   public int GetHashCode(SampleClass? obj) => obj is not null ? HashCode.Combine(obj.Number, obj.NullableDateTime, obj.Text) : 0;
+#else
+  public int GetHashCode(SampleClass? obj) => obj is not null ? obj.Number.GetHashCode() ^ obj.NullableDateTime.GetHashCode() ^ (obj.Text?.GetHashCode() ?? 0) : 0;
+#endif // NETCOREAPP2_1_OR_GREATER
 
   public int Compare(SampleClass? x, SampleClass? y) {
     if(x == y) {
@@ -98,31 +110,37 @@ internal static class SampleClassBenchmarks
   public static TestComparers<SampleClass> AllComparers { get; } = new(Comparer, Comparer, ComparerBuilder, NitoFullComparer);
 }
 
+[BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.Equal)]
 public class SampleClassEqualityComparerEqualBenchmarks : EqualityComparerEqualBenchmarks<SampleClass>
 {
   public SampleClassEqualityComparerEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
 }
 
+[BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.NotEqual)]
 public class SampleClassEqualityComparerNotEqualBenchmarks : EqualityComparerNotEqualBenchmarks<SampleClass>
 {
   public SampleClassEqualityComparerNotEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
 }
 
+[BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.GetHashCode)]
 public class SampleClassEqualityComparerGetHashCodeBenchmarks : EqualityComparerGetHashCodeBenchmarks<SampleClass>
 {
   public SampleClassEqualityComparerGetHashCodeBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
 }
 
+[BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.Comparer, BenchmarkCategories.Equal)]
 public class SampleClassComparerEqualBenchmarks : ComparerEqualBenchmarks<SampleClass>
 {
   public SampleClassComparerEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
 }
 
+[BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual)]
 public class SampleClassComparerNotEqualBenchmarks : ComparerNotEqualBenchmarks<SampleClass>
 {
   public SampleClassComparerNotEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
 }
 
+[BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.Comparer, BenchmarkCategories.Sort)]
 public class SampleClassComparerSortBenchmarks : ComparerSortBenchmarks<SampleClass>
 {
   public SampleClassComparerSortBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
