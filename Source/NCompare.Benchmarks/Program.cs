@@ -20,9 +20,9 @@ internal static partial class Program
     }//if
 
     var config = ManualConfig.CreateEmpty()
-      .AddJob(Job.Default.WithRuntime(ClrRuntime.Net461).WithWarmupCount(0).WithIterationCount(10).WithInvocationCount(1).WithUnrollFactor(1))
-      .AddJob(Job.Default.WithRuntime(ClrRuntime.Net472).WithWarmupCount(0).WithIterationCount(10).WithInvocationCount(1).WithUnrollFactor(1))
-      .AddJob(Job.Default.WithRuntime(CoreRuntime.Core70).WithWarmupCount(0).WithIterationCount(10).WithInvocationCount(1).WithUnrollFactor(1))
+      .AddJob(Job.Default.WithRuntime(ClrRuntime.Net461)/*.WithWarmupCount(0).WithIterationCount(10).WithInvocationCount(1).WithUnrollFactor(1)*/)
+      .AddJob(Job.Default.WithRuntime(ClrRuntime.Net472)/*.WithWarmupCount(0).WithIterationCount(10).WithInvocationCount(1).WithUnrollFactor(1)*/)
+      .AddJob(Job.Default.WithRuntime(CoreRuntime.Core70)/*.WithWarmupCount(0).WithIterationCount(10).WithInvocationCount(1).WithUnrollFactor(1)*/)
       .AddColumn(JobCharacteristicColumn.AllColumns)
       .AddColumn(TargetMethodColumn.Type, TargetMethodColumn.Method)
       .AddColumn(StatisticColumn.Mean)
