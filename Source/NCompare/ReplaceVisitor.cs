@@ -7,16 +7,16 @@ namespace NCompare;
 
 internal sealed class ReplaceVisitor : ExpressionVisitor
 {
-  private ReplaceVisitor(IEnumerable<(Expression What, Expression To)> items) => Replaces = items?.ToDictionary(item => item.What, item => item.To) ?? throw new ArgumentNullException(nameof(items));
+  private ReplaceVisitor(IEnumerable<(Expression What, Expression To)> items) => Replaces = items?.ToDictionary(static item => item.What, static item => item.To) ?? throw new ArgumentNullException(nameof(items));
 
-  private IReadOnlyDictionary<Expression, Expression> Replaces { get; }
+  private Dictionary<Expression, Expression> Replaces { get; }
 
   public static Expression ReplaceParameters(LambdaExpression expression, params Expression[] parameters) {
     if(expression is null) {
       throw new ArgumentNullException(nameof(expression));
     } else if(parameters is null) {
       throw new ArgumentNullException(nameof(parameters));
-    } else if(parameters.Length == 0) {
+    } else if(parameters.Length is 0) {
       throw new ArgumentException("Should not be empty array.", nameof(parameters));
     } else if(expression.Parameters.Count != parameters.Length) {
       throw new ArgumentException("Number of parameters in expression and in the array not equal.", nameof(expression));

@@ -34,8 +34,7 @@ internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
   }
 
   public ComparerBuilderExpression(LambdaExpression expression, IEqualityComparer<T>? equalityComparer, IComparer<T>? comparer,
-    string? expressionText, string? filePath, int lineNumber)
-    : this(expression, expressionText, filePath, lineNumber) {
+    string? expressionText, string? filePath, int lineNumber) : this(expression, expressionText, filePath, lineNumber) {
     EqualityComparer = equalityComparer;
     Comparer = comparer;
   }
@@ -54,6 +53,8 @@ internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
 
   private static MethodInfo GetInterceptMethodInfo(string methodName)
     => typeof(IComparerBuilderInterception).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).MakeGenericMethod(typeof(T));
+
+#pragma warning disable CA1859 // Use concrete types when possible for improved performance (Skip warning for return type of methods below)
 
   private static Expression MakeEquals(Expression x, Expression y, IEqualityComparer<T>? comparer)
     => comparer is not null
@@ -87,24 +88,20 @@ internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
 
     var instance = Constant(context.Interception);
 
-    var variables = Array.ConvertAll(args, item => Parameter(item.Type));
-    var assigns = Enumerable.Zip(variables, args, (param, arg) => Assign(param, arg));
+    var variables = Array.ConvertAll(args, static item => Parameter(item.Type));
+    var assigns = Enumerable.Zip(variables, args, static (param, arg) => Assign(param, arg));
 
     var interceptionArgs = new ComparerBuilderInterceptionArgs<T>(Expression, context.ComparedType, EqualityComparer, Comparer, ExpressionText, FilePath, LineNumber);
     var interceptionArgsExpression = Constant(interceptionArgs);
 
-    var arguments = new List<Expression>(args.Length + 2) { value, };
-    arguments.AddRange(variables);
-    arguments.Add(interceptionArgsExpression);
-
+    var arguments = new List<Expression>(args.Length + 2) { value, variables, interceptionArgsExpression, };
     var call = Call(instance, method, arguments);
-
-    var expressions = new List<Expression>(args.Length + 1);
-    expressions.AddRange(assigns);
-    expressions.Add(call);
+    var expressions = new List<Expression>(args.Length + 1) { assigns, call, };
 
     return Block(value.Type, variables, expressions);
   }
+
+#pragma warning restore CA1859 // Use concrete types when possible for improved performance
 
   public override string ToString() => Expression.ToString();
 
