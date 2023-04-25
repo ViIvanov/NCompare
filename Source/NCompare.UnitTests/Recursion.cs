@@ -12,77 +12,27 @@ public sealed class Recursion
 {
   [TestMethod]
   public void RecursiveComparerForLinkedList() {
-    //var xxx = ComparerBuilder.Y<int, int, int>((f, x, y) => x > y ? f(f, x - 1, y + 1) : x * y);
-    //var yyy = xxx.Compile();
-    //var zzz = yyy(5, 1);
-    //var builder = new ComparerBuilder<LinkedListNode<string>>();
-    //var lazy = new Lazy<ComparerBuilder<LinkedListNode<string>>>(() => builder);
-    //var equalityComparer = default(IEqualityComparer<LinkedListNode<string>>);
-    //var lazy = new Lazy<ComparerBuilder<string>>(() => new ComparerBuilder<string>().Add(item => item), false);
-    //var lazy = ComparerBuilder.Lazy<LinkedListNode<string>>();
-
-    //var builder = new ComparerBuilder<LinkedListNode<string>>();
-    //var lazyEqualityComparer = builder.CreateLazyEqualityComparer();
-
-    //builder.Interception.
-    //builder.Add(value => value.Value, StringComparer.Ordinal);
-    //builder.Add(value => value.Depth);
-    //builder.Add(value => value.Next, lazyEqualityComparer!);
-
-    //var equalityComparer = builder.CreateEqualityComparerIntercepted();
-    //var interceptor = new Interceptor();
-    //var equalityComparer = builder.CreateEqualityComparerIntercepted(interceptor);
-    //var equalityComparer = builder.CreateEqualityComparer();
-    //var comparer = builder.CreateComparerIntercepted();
-    //var comparer = builder.CreateComparer();
-    //var equalityComparer = EqualityComparer<LinkedListNode<string>>.Default;
-    //var equalityComparer = lazyEqualityComparer.Value;
-
-    //LinkedListNode<string> Node(string value, LinkedListNode<string>? next = null) => new LinkedListNode<string>(value, next);
-
-    //var list1 = Node("1", Node("2", Node("3")));
-    //var list2 = Node("1", Node("2", Node("C")));
-    //var list3 = Node("1", Node("2", Node("3")));
-
-    //var builder = new ComparerBuilder<LinkedListNode<string>>();
-    //var lazyEqualityComparer = builder.CreateLazyEqualityComparer();
-    //builder.Add(value => value.Value, StringComparer.Ordinal);
-    //builder.Add(value => value.Depth);
-    //builder.Add(value => value.Next, lazyEqualityComparer!);
-    ////builder.Add(
-    //var equalityComparer = lazyEqualityComparer.Value;
-    //Assert.IsNotNull(equalityComparer, nameof(equalityComparer));
-
-    //var test1 = equalityComparer.Equals(list1, list2); // False
-    //var test2 = equalityComparer.Equals(list2, list3); // False
-    //var test3 = equalityComparer.Equals(list1, list3); // True
-
-    //try {
-    //  var xtest2 = equalityComparer.Equals(data1, data4);
-    //} catch(Exception) {
-    //  throw;
-    //}
-
     static LinkedListNode<string> Node(string value, LinkedListNode<string>? next = null) => new(value, next);
 
     var list1 = Node("1", Node("2", Node("3")));
     var list2 = Node("1", Node("2", Node("C")));
     var list3 = Node("1", Node("2", Node("3")));
 
-    var builder = new ComparerBuilder<LinkedListNode<string>>();
-    builder.Add(value => value.Value, StringComparer.Ordinal);
-    builder.Add(value => value.Depth);
-    builder.Add(value => value.Next, builder!);
-    var equalityComparer = builder.CreateEqualityComparer();
-    Assert.IsNotNull(equalityComparer, nameof(equalityComparer));
+    var builder = new ComparerBuilder<LinkedListNode<string>>()
+      .Add(value => value.Value, StringComparer.Ordinal)
+      .Add(value => value.Depth)
+      .Add(value => value.Next!);
+    var customEqualityComparer = new LinkedListNodeEqualityComparer<string>();
 
-    TestEqualityComparer("1/2", list1, list2, expected: false, equalityComparer);
-    TestEqualityComparer("2/3", list2, list3, expected: false, equalityComparer);
-    TestEqualityComparer("1/3", list1, list3, expected: true, equalityComparer);
+    Test("1/2", list1, list2, expected: CompareResult.LessThan, builder, customEqualityComparer);
+    Test("2/3", list2, list3, expected: CompareResult.GreaterThan, builder, customEqualityComparer);
+    Test("1/3", list1, list3, expected: CompareResult.Equal, builder, customEqualityComparer);
 
-    //var test1 = equalityComparer.Equals(list1, list2); // False
-    //var test2 = equalityComparer.Equals(list2, list3); // False
-    //var test3 = equalityComparer.Equals(list1, list3); // True
+    static void Test<T>(string title, T? x, T? y, CompareResult expected, ComparerBuilder<T> builder, IEqualityComparer<T> equalityComparer) {
+      TestComparers(title, x, y, expected, builder);
+      TestEqualityComparer(title, x, y, expected is CompareResult.Equal, EqualityComparer<T>.Default);
+      TestEqualityComparer(title, x, y, expected is CompareResult.Equal, equalityComparer);
+    }
   }
 
   private sealed class LinkedListNode<T> : IEquatable<LinkedListNode<T>>
@@ -128,96 +78,83 @@ public sealed class Recursion
       => obj is not null ? (obj.Value is null ? -31 : EqualityComparer<T>.Default.GetHashCode(obj.Value)) : -13;
   }
 
-  //internal sealed class Interceptor : IComparerBuilderInterception
-  //{
-  //  public int InterceptCompare<T>(int value, T x, T y, ComparerBuilderInterceptionArgs<T> args) => value;
-  //  public bool InterceptEquals<T>(bool value, T x, T y, ComparerBuilderInterceptionArgs<T> args) => value;
-  //  public int InterceptGetHashCode<T>(int value, T obj, ComparerBuilderInterceptionArgs<T> args) => value;
-  //}
-
   [TestMethod]
-  public void RecursiveComparerForListNode() {
-    var listNodeBuilder = new ComparerBuilder<ListNode<int>>();
-    var listNotesBuilder = new ComparerBuilder<ListNotes<int>>();
+  public void CompareMutuallyRecursiveTypes() {
+    var xbuilder = new ComparerBuilder<XParam>();
+    var ybuilder = new ComparerBuilder<YParam>();
 
-    listNodeBuilder.Add(item => item.Value);
-    //listNodeBuilder.Add(item => item.Previous, lazyListNodeEqualityComparer!);
-    listNodeBuilder.Add(item => item.Next!);
-    //listNodeBuilder.Add(item => item.Previous!);
-    //listNodeBuilder.Add(item => item.Next!);
-    listNodeBuilder.Add(item => item.Notes, listNotesBuilder);
+    xbuilder.Add(item => item.Name);
+    xbuilder.Add(item => item.Created);
+    xbuilder.Add(item => item.Param, ybuilder);
 
-    //listNotesBuilder.Add(item => item.Root, lazyListNodeEqualityComparer);
-    //listNotesBuilder.Add(item => item.Root, listNodeBuilder);
-    listNotesBuilder.Add(item => item.SavePath, StringComparer.OrdinalIgnoreCase);
+    ybuilder.Add(item => item.Number);
+    ybuilder.Add(item => item.Title);
+    ybuilder.Add(item => item.Param, xbuilder);
 
-    var equalityComparer = listNodeBuilder.CreateEqualityComparer();
+    var x = CreateXParam();
+    var y = CreateXParam();
+    var z = FixParam(CreateXParam(), 5);
+    var w = FixParam(CreateXParam(), -3);
 
-    static ListNode<int> Build(params string[] paths) {
-      var root = new ListNode<int>(0, "Root");
+    TestComparers("x/y", x, y, expected: CompareResult.Equal, xbuilder);
+    TestComparers("x/z", x, z, expected: CompareResult.LessThan, xbuilder);
+    TestComparers("y/w", y, w, expected: CompareResult.GreaterThan, xbuilder);
+    TestComparers("z/w", z, w, expected: CompareResult.GreaterThan, xbuilder);
 
-      if(paths != null) {
-        var index = root.Value + 1;
-        var previous = root;
-        foreach(var item in paths) {
-          var child = new ListNode<int>(index++, $"Child {item}", previous: previous);
-          previous.Next = child;
-          previous = child;
-        }//for
-      }//if
+    static XParam CreateXParam() => new() {
+      Name = "A",
+      Created = new DateOnly(2023, 01, 01),
+      Param = new YParam {
+        Number = 1,
+        Title = "X",
+        Param = new XParam {
+          Name = "B",
+          Created = new DateOnly(2020, 01, 01),
+          Param = new YParam {
+            Number = 2,
+            Title = "Y",
+          },
+        },
+      },
+    };
 
-      return root;
+    static T FixParam<T>(T item, int increment) {
+      var last = LastParam(item);
+      switch(last) {
+      case XParam x:
+        x.Created = x.Created.AddDays(increment);
+        break;
+      case YParam y:
+        y.Number += increment;
+        break;
+      }
+
+      return item;
+
+      static object LastParam(object? item) => item switch { // Returns ".Param" whose ".Param" is null
+        null => throw new ArgumentNullException(nameof(item)),
+        XParam { Param: null, } => item,
+        XParam x => LastParam(x.Param),
+        YParam { Param: null, } => item,
+        YParam y => LastParam(y.Param),
+        _ => throw new ArgumentException($"Unsupported type: {item.GetType()}", nameof(item)),
+      };
     }
-
-    //var list1 = Build("X1", "X2", "X3", "X4");
-    //var list2 = Build("X1", "X2", "Y3", "X4");
-    //var list3 = Build("X1", "X2", "X3", "X4");
-
-    var list1 = Build("X1");
-    var list2 = Build("X2");
-    var list3 = Build("X1");
-
-    TestEqualityComparer("1/2", list1, list2, expected: false, equalityComparer);
-    TestEqualityComparer("2/3", list2, list3, expected: false, equalityComparer);
-    TestEqualityComparer("1/3", list1, list3, expected: true, equalityComparer);
-    //var equals12 = equalityComparer.Equals(list1, list2);
-    //Assert.IsFalse(equals12, "1 <=> 2");
-    //var equals23 = equalityComparer.Equals(list2, list3);
-    //Assert.IsFalse(equals12, "2 <=> 3");
-    //var equals13 = equalityComparer.Equals(list1, list3);
-    //Assert.IsTrue(equals12, "1 <=> 3");
   }
 
-  class ListNode<T>
+  private sealed class XParam
   {
-    public ListNode(T value, string savePath, ListNode<T>? next = default, ListNode<T>? previous = default)
-      => (Value, Next, Previous, Notes) = (value, next, previous, new ListNotes<T>(this, savePath));
+    public string Name { get; set; } = String.Empty;
+    public DateOnly Created { get; set; }
 
-    public T Value { get; }
-    public ListNode<T>? Previous { get; set; }
-    public ListNode<T>? Next { get; set; }
-
-    public ListNotes<T> Notes { get; }
-
-    public override string ToString() => $"{nameof(Value)}: {Value}, {nameof(Notes)}: {Notes}";
+    public YParam? Param { get; init; }
   }
 
-  class ListNotes<T>
+  private sealed class YParam
   {
-    public ListNotes(ListNode<T> root, string savePath = "") => (Root, SavePath) = (root, savePath);
+    public int Number { get; set; }
+    public string Title { get; set; } = String.Empty;
 
-    public ListNode<T> Root { get; }
-    public string SavePath { get; set; }
-
-    public override string ToString() => $"{nameof(SavePath)}: {SavePath}, {nameof(Root)}: {Root.Value}";
+    public XParam? Param { get; init; }
   }
-
-  //class XParam
-  //{
-  //  public List<YParam> YParams { get; }
-  //}
-
-  //class YParam
-  //{
-  //}
 }
