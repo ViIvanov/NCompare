@@ -33,6 +33,45 @@ partial class General
     Assert.AreEqual(expected: CompareX, interception.X);
     Assert.AreEqual(expected: CompareY, interception.Y);
   }
+
+  [TestMethod]
+  public void ConvertToNullToInterception() {
+    var original = new ComparerBuilder<object>();
+    Assert.IsNull(original.Interception, "Original");
+
+    var interception = new Interception();
+    var converted = original.ConvertTo<string>(interception);
+    Assert.AreEqual(expected: interception, converted.Interception, "Converted");
+  }
+
+  [TestMethod]
+  public void ConvertToNullToEmpty() {
+    var original = new ComparerBuilder<object>();
+    Assert.IsNull(original.Interception, "Original");
+
+    var converted = original.ConvertTo<string>();
+    Assert.IsNull(converted.Interception, "Converted");
+  }
+
+  [TestMethod]
+  public void ConvertToInterceptionToNull() {
+    var interception = new Interception();
+    var original = new ComparerBuilder<object>(interception);
+    Assert.AreEqual(expected: interception, original.Interception, "Original");
+
+    var converted = original.ConvertTo<string>(interception: null);
+    Assert.IsNull(converted.Interception, "Converted");
+  }
+
+  [TestMethod]
+  public void ConvertToInterceptionToEmpty() {
+    var interception = new Interception();
+    var original = new ComparerBuilder<object>(interception);
+    Assert.AreEqual(expected: interception, original.Interception, "Original");
+
+    var converted = original.ConvertTo<string>();
+    Assert.AreEqual(expected: interception, converted.Interception, "Converted");
+  }
 }
 
 [DebuggerDisplay($"({nameof(X)} = {{{nameof(X)}}}, {nameof(Y)} = {{{nameof(Y)}}})")]
@@ -46,6 +85,8 @@ file sealed class Interception : IComparerBuilderInterception
 
   public object? X { get; private set; }
   public object? Y { get; private set; }
+
+  public override string ToString() => nameof(Interception);
 
   int IComparerBuilderInterception.InterceptCompare<T>(int value, T x, T y, ComparerBuilderInterceptionArgs<T> args) {
     (X, Y) = (x, y);
