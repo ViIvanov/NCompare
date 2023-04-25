@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,6 +10,12 @@ using static TestCompare;
 [TestClass]
 public sealed partial class General
 {
+  private static void AssertException<TException>(Action action, string message) where TException : Exception {
+    var ex = Assert.ThrowsException<TException>(action);
+    Assert.IsNotNull(ex);
+    Assert.AreEqual(expected: message, ex.Message);
+  }
+
   #region Regular Tests
 
   [TestMethod]
@@ -18,8 +23,13 @@ public sealed partial class General
     var builder = new ComparerBuilder<TestValue>();
     Assert.IsTrue(builder.IsEmpty, $"{nameof(builder.IsEmpty)} should be true after object creation.");
     Assert.IsNull(builder.Interception, $"{nameof(builder.Interception)} is not null: {builder.Interception}.");
-    Assert.ThrowsException<InvalidOperationException>(() => builder.CreateEqualityComparer());
-    Assert.ThrowsException<InvalidOperationException>(() => builder.CreateComparer());
+    AssertException(() => builder.CreateEqualityComparer());
+    AssertException(() => builder.CreateComparer());
+
+    static void AssertException(Action action) {
+      const string Message = "There are no expressions specified.";
+      AssertException<InvalidOperationException>(action, Message);
+    }
   }
 
   [TestMethod]
@@ -33,6 +43,35 @@ public sealed partial class General
 
     var comparer = builder.CreateComparer();
     Assert.IsNotNull(comparer, $"{nameof(builder.CreateComparer)}() returned null");
+  }
+
+  [TestMethod]
+  public void ThrowIfCreatedEqualityComparer() {
+    var builder = new ComparerBuilder<TestValue>().Add(item => item.Number);
+    _ = builder.CreateEqualityComparer();
+    AssertThrowIfCreated(builder);
+  }
+
+  [TestMethod]
+  public void ThrowIfCreatedComparer() {
+    var builder = new ComparerBuilder<TestValue>().Add(item => item.Number);
+    _ = builder.CreateComparer();
+    AssertThrowIfCreated(builder);
+  }
+
+  private static void AssertThrowIfCreated<T>(ComparerBuilder<T> builder) where T : notnull {
+    AssertException(() => builder.Add(item => item.ToString()));
+    AssertException(() => builder.Add(item => item.ToString(), EqualityComparer<string?>.Default, Comparer<string?>.Default));
+    AssertException(() => builder.Add(item => item.ToString(), Comparer<string?>.Default));
+    AssertException(() => builder.Add(item => item.ToString(), StringComparer.Ordinal));
+    AssertException(() => builder.Add(item => item));
+    AssertException(() => builder.Add(item => item.ToString(), new ComparerBuilder<string?>()));
+    AssertException(() => builder.Add(builder));
+
+    static void AssertException(Action action) {
+      const string Message = "Comparer(s) already created. It is not possible to modify created comparer(s).";
+      AssertException<InvalidOperationException>(action, Message);
+    }
   }
 
   [TestMethod]

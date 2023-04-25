@@ -50,10 +50,7 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   private LazyComparer Comparer { get; }
 
   private ComparerBuilder<T> Add(IComparerBuilderExpression expression) {
-    if(EqualityComparer.IsValueCreated || Comparer.IsValueCreated) {
-      const string Message = "Comparer(s) already created. It is not possible to modify created comparer(s).";
-      throw new InvalidOperationException(Message);
-    }//if
+    ThrowIfCreated();
 
     Expressions.Add(expression ?? throw new ArgumentNullException(nameof(expression)));
     return this;
@@ -92,11 +89,9 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
     => Add(expression, builder?.EqualityComparer ?? throw new ArgumentNullException(nameof(builder)), builder?.Comparer, expressionText, filePath, lineNumber);
 
   public ComparerBuilder<T> Add(ComparerBuilder<T> other) {
-    if(other is null) {
-      throw new ArgumentNullException(nameof(other));
-    }//if
+    ThrowIfCreated();
 
-    Expressions.AddRange(other.Expressions);
+    Expressions.AddRange(other?.Expressions ?? throw new ArgumentNullException(nameof(other)));
     return this;
   }
 
@@ -151,6 +146,13 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   }
 
   #endregion Build Methods
+
+  private void ThrowIfCreated() {
+    if(EqualityComparer.IsValueCreated || Comparer.IsValueCreated) {
+      const string Message = "Comparer(s) already created. It is not possible to modify created comparer(s).";
+      throw new InvalidOperationException(Message);
+    }//if
+  }
 
   private void ThrowIfEmpty() {
     if(IsEmpty) {
