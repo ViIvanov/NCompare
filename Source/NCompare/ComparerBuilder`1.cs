@@ -102,7 +102,8 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
 
   #endregion Add Overloads
 
-  public ComparerBuilder<TDerived> ConvertTo<TDerived>() where TDerived : T => new(new(Expressions), Interception);
+  public ComparerBuilder<TDerived> ConvertTo<TDerived>() where TDerived : T => ConvertTo<TDerived>(Interception);
+  public ComparerBuilder<TDerived> ConvertTo<TDerived>(IComparerBuilderInterception? interception) where TDerived : T => new(new(Expressions), interception);
 
   #region Build Methods
 
