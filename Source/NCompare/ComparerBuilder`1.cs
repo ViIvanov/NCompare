@@ -42,9 +42,10 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   Type IComparerBuilderContext.ComparedType => ComparedType;
 
   public bool IsEmpty => Expressions.Count == 0;
+  public bool IsFrozen => EqualityComparer.IsValueCreated || Comparer.IsValueCreated;
 
   [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-  private string DebuggerDisplay => $"Expressions: {Expressions.Count} item(s).";
+  private string DebuggerDisplay => $"{nameof(Expressions)}: {Expressions.Count} item(s), {nameof(IsFrozen)}: {IsFrozen}.";
 
   private LazyEqualityComparer EqualityComparer { get; }
   private LazyComparer Comparer { get; }
@@ -148,7 +149,7 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   #endregion Build Methods
 
   private void ThrowIfCreated() {
-    if(EqualityComparer.IsValueCreated || Comparer.IsValueCreated) {
+    if(IsFrozen) {
       const string Message = "Comparer(s) already created. It is not possible to modify created comparer(s).";
       throw new InvalidOperationException(Message);
     }//if
