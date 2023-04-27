@@ -46,6 +46,20 @@ public sealed partial class General
   }
 
   [TestMethod]
+  public void IsFrozen() {
+    Verify(builder => builder.CreateEqualityComparer());
+    Verify(builder => builder.CreateComparer());
+
+    static void Verify<T>(Func<ComparerBuilder<TestValue>, T> create) {
+      var builder = new ComparerBuilder<TestValue>().Add(static item => item.Number);
+      Assert.IsFalse(builder.IsFrozen, $"{nameof(builder.IsFrozen)} should be false before creating comparator {typeof(T)}.");
+      _ = create(builder);
+      Assert.IsTrue(builder.IsFrozen, $"{nameof(builder.IsFrozen)} should be true after creating comparator {typeof(T)}.");
+      AssertException<InvalidOperationException>(() => builder.Add(static item => item.DateTime), "Comparer(s) already created. It is not possible to modify created comparer(s).");
+    }
+  }
+
+  [TestMethod]
   public void ThrowIfCreatedEqualityComparer() {
     var builder = new ComparerBuilder<TestValue>().Add(item => item.Number);
     _ = builder.CreateEqualityComparer();
