@@ -12,6 +12,7 @@
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>Preview-All</AnalysisLevel>
     <ImplicitUsings>Enable</ImplicitUsings>
+    <Deterministic>True</Deterministic>
   </PropertyGroup>
 
   <PropertyGroup>
