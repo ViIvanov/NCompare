@@ -1,5 +1,7 @@
 # NCompare
 
+[![NuGet version (NCompare)](https://img.shields.io/nuget/v/NCompare.svg?style=flat-square)](https://www.nuget.org/packages/NCompare/)
+
 The library provides the `ComparerBuilder<T>` type, which helps to create comparators (equality and sort comparators) for comparing objects of type `T`.
 
 `ComparerBuilder<T>` helps to compare complex types. It can create `EqualityComparer<>` and/or a `Comparer<>` objects for your types.
