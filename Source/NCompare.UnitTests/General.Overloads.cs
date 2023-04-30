@@ -61,8 +61,15 @@ file abstract class TBaseObject : IEquatable<TBaseObject>, IEquatable<TObject>
     return true;
   }
 
-  public static bool operator ==(TBaseObject? left, TBaseObject? right) => true;
-  public static bool operator !=(TBaseObject? left, TBaseObject? right) => true;
+  public static bool operator ==(TBaseObject? left, TBaseObject? right) {
+    Assert.Fail($"{nameof(TBaseObject)}::operator == called");
+    return true;
+  }
+
+  public static bool operator !=(TBaseObject? left, TBaseObject? right) {
+    Assert.Fail($"{nameof(TBaseObject)}::operator != called");
+    return true;
+  }
 }
 
 file sealed class TObject : TBaseObject
@@ -108,6 +115,13 @@ file readonly struct TValue
     return true;
   }
 
-  public static bool operator ==(TValue left, TValue right) => true;
-  public static bool operator !=(TValue left, TValue right) => true;
+  public static bool operator ==(TValue left, TValue right) {
+    Assert.Fail($"{nameof(TValue)}::operator == called");
+    return true;
+  }
+
+  public static bool operator !=(TValue left, TValue right) {
+    Assert.Fail($"{nameof(TValue)}::operator != called");
+    return true;
+  }
 }
