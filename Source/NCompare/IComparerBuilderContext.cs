@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NCompare;
+﻿namespace NCompare;
 
 internal interface IComparerBuilderContext
 {

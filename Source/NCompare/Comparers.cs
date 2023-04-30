@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NCompare;
+﻿namespace NCompare;
 
 internal static class Comparers
 {
