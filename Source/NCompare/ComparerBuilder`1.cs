@@ -75,7 +75,8 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
     => Add(expression, equalityComparer: null, comparer, expressionText, filePath, lineNumber);
 
   public ComparerBuilder<T> Add<TValue, TComparer>(Expression<Func<T, TValue?>> expression, TComparer comparer,
-    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) where TComparer : IEqualityComparer<TValue>, IComparer<TValue>
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
+    where TComparer : IEqualityComparer<TValue>, IComparer<TValue>
     => Add(expression, comparer, comparer, expressionText, filePath, lineNumber);
 
   public ComparerBuilder<T> Add(Expression<Func<T, T?>> expression,
