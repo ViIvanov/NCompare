@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace NCompare.UnitTests.Samples;
 
-using static PersonAndAddressComparators;
+using static PersonAndAddressComparison;
 
 public sealed partial class Person
 {
@@ -62,20 +62,34 @@ partial class Address : IEquatable<Address>, IComparable<Address>, IEqualityOper
   public static bool operator >=(Address? left, Address? right) => !(left < right);
 }
 
-internal static class PersonAndAddressComparators
+internal static class PersonAndAddressComparison
 {
-  static PersonAndAddressComparators() {
-    PersonComparerBuilder = new ComparerBuilder<Person>(new DebugInterception());
-    AddressComparerBuilder = new ComparerBuilder<Address>(new DebugInterception());
+  static PersonAndAddressComparison() {
+    // At the first, initializing comparer builder for `Person`
 
-    PersonComparerBuilder.Add(item => item.Name, StringComparer.OrdinalIgnoreCase); // Use `OrdinalIgnoreCase` comparer for both, equality and sorting
-    PersonComparerBuilder.Add(item => item.BirthDate != null ? item.BirthDate.Value.Date : default(DateTime?)); // Compare only `Date` part with default comparators (for equality and sorting)
-    PersonComparerBuilder.Add(item => item.BestFriend); // Use implicit same comparer builder to compare value of the same type
-    PersonComparerBuilder.Add(item => item.Address, AddressComparerBuilder); // Use another (even not initialized) comparer builder instead of comparators
+    // Add comparison for `Name` property. Using `OrdinalIgnoreCase` comparer for both, equality and sorting.
+    // Custom `IEqualityComparer<>` and `IComparer<>` also could be provided, one of them or both.
+    PersonComparerBuilder.Add(item => item.Name, StringComparer.OrdinalIgnoreCase);
 
-    AddressComparerBuilder.Add(item => $"{item.Line1}{Environment.NewLine}{item.Line2}", StringComparer.InvariantCultureIgnoreCase); // Compare both lines at once
+    // Compare only `Date` part with default comparators (for equality and sorting)
+    PersonComparerBuilder.Add(item => item.BirthDate != null ? item.BirthDate.Value.Date : default(DateTime?));
+
+    // Using implicitly the same comparer builder to compare value of the same type
+    PersonComparerBuilder.Add(item => item.BestFriend);
+
+    // Using another (even not fully initialized) comparer builder
+    PersonComparerBuilder.Add(item => item.Address, AddressComparerBuilder);
+
+    // Now we can initialize comparer builder for `Address`
+
+    // Compare both lines at once
+    AddressComparerBuilder.Add(item => $"{item.Line1}{Environment.NewLine}{item.Line2}", StringComparer.InvariantCultureIgnoreCase);
     AddressComparerBuilder.Add(item => item.PostalCode);
-    AddressComparerBuilder.Add(item => item.Owner, PersonComparerBuilder); // Use another comparer builder instead of comparators
+
+    // Use another comparer builder instead of comparators
+    AddressComparerBuilder.Add(item => item.Owner, PersonComparerBuilder);
+
+    // Now we can build comparators
 
     PersonEqualityComparer = PersonComparerBuilder.CreateEqualityComparer();
     PersonComparer = PersonComparerBuilder.CreateComparer();
@@ -84,8 +98,8 @@ internal static class PersonAndAddressComparators
     AddressComparer = AddressComparerBuilder.CreateComparer();
   }
 
-  internal static ComparerBuilder<Person> PersonComparerBuilder { get; }
-  internal static ComparerBuilder<Address> AddressComparerBuilder { get; }
+  internal static ComparerBuilder<Person> PersonComparerBuilder { get; } = new(new DebugInterception());
+  internal static ComparerBuilder<Address> AddressComparerBuilder { get; } = new(new DebugInterception());
 
   public static EqualityComparer<Person> PersonEqualityComparer { get; }
   public static Comparer<Person> PersonComparer { get; }
