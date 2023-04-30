@@ -11,6 +11,7 @@
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>Preview-All</AnalysisLevel>
+    <ImplicitUsings>Enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup>
