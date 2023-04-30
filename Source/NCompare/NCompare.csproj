@@ -27,8 +27,8 @@
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Copyright>Copyright © 2023 @ViIvanov</Copyright>
-    <Description>NCompare library provides an ability to easy build comparers (EqualityComparer&lt;&gt; / Comparer&lt;&gt;) for .NET / C# types. Based on Linq expressions for describe an object structure.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Description>NCompare library provides an ability to easy build comparators (EqualityComparer&lt;&gt; / Comparer&lt;&gt;) for .NET / C# types. Based on Linq expressions for describe an object structure.</Description>
+    <PackageReadmeFile>Readme.nuget.md</PackageReadmeFile>
     <Authors>ViIvanov</Authors>
   </PropertyGroup>
 
@@ -45,7 +45,7 @@
       <Pack>True</Pack>
       <PackagePath />
     </None>
-    <None Include="..\..\README.md">
+    <None Include="..\Readme.nuget.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
