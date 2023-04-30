@@ -6,11 +6,37 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NCompare.UnitTests.Samples;
 
 using static TestCompare;
-using static PersonAndAddressComparators;
+using static PersonAndAddressComparison;
 
 [TestClass]
 public sealed class PersonAndAddress
 {
+  [TestMethod]
+  public void PersonComparisonTests() {
+    var person1 = new Person {
+      Name = "Alex",
+      BirthDate = new DateTime(2000, 01, 01, 07, 00, 00),
+    };
+
+    var person2 = new Person {
+      Name = "alex",
+      BirthDate = new DateTime(2000, 01, 01, 16, 30, 00),
+    };
+
+    var person3 = new Person {
+      Name = "Bob",
+    };
+
+    Assert.AreEqual(person1, person2, PersonEqualityComparer);
+    Assert.AreNotEqual(person2, person3, PersonEqualityComparer);
+
+    var compare12 = PersonComparer.Compare(person1, person2);
+    Assert.AreEqual(expected: 0, compare12);
+
+    var compare23 = PersonComparer.Compare(person2, person3);
+    Assert.IsTrue(compare23 < 0);
+  }
+
   [TestMethod]
   public void PersonComparators() {
     var friend = new Person {
