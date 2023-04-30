@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 
 namespace NCompare.Benchmarks;
 

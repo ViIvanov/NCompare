@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NCompare.Benchmarks;
+﻿namespace NCompare.Benchmarks;
 
 public abstract class Benchmarks<T>
 {
