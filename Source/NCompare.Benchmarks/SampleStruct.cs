@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 
 using Nito.Comparers;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace NCompare.Benchmarks;
 
