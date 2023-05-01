@@ -11,16 +11,20 @@ public abstract class ComparerEqualBenchmarks<T> : ComparerBenchmarks<T> where T
 {
   protected ComparerEqualBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, values) { }
 
-  [Benchmark(Baseline = true)]
+  [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.IComparable)]
   public int Compare_Override_Equal() => Item1_1.CompareTo(Item1_2);
 
-  [Benchmark]
+  [Benchmark(Description = BenchmarkDescriptions.Comparer)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.Comparer)]
   public int Compare_Comparer_Equal() => Comparers.Comparer.Compare(Item1_1, Item1_2);
 
-  [Benchmark]
+  [Benchmark(Description = BenchmarkDescriptions.ComparerBuilder)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.ComparerBuilder)]
   public int Compare_Builder_Equal() => Comparers.BuilderComparer.Compare(Item1_1, Item1_2);
 
-  [Benchmark]
+  [Benchmark(Description = BenchmarkDescriptions.NitoComparers)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.NitoComparers)]
   public int Compare_Nito_Equal() => Comparers.NitoFullComparer.Compare(Item1_1, Item1_2);
 }
 
@@ -28,32 +32,60 @@ public abstract class ComparerNotEqualBenchmarks<T> : ComparerBenchmarks<T> wher
 {
   protected ComparerNotEqualBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, values) { }
 
-  [Benchmark(Baseline = true)]
+  [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.IComparable)]
   public int Compare_Override_NotEqual() => Item1_1.CompareTo(Item2);
 
-  [Benchmark]
+  [Benchmark(Description = BenchmarkDescriptions.Comparer)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.Comparer)]
   public int Compare_Comparer_NotEqual() => Comparers.Comparer.Compare(Item1_1, Item2);
 
-  [Benchmark]
+  [Benchmark(Description = BenchmarkDescriptions.ComparerBuilder)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.ComparerBuilder)]
   public int Compare_Builder_NotEqual() => Comparers.BuilderComparer.Compare(Item1_1, Item2);
 
-  [Benchmark]
+  [Benchmark(Description = BenchmarkDescriptions.NitoComparers)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.NitoComparers)]
   public int Compare_Nito_NotEqual() => Comparers.NitoFullComparer.Compare(Item1_1, Item2);
 }
 
 public abstract class ComparerSortBenchmarks<T> : ComparerBenchmarks<T> where T : IComparable<T>
 {
-  protected ComparerSortBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, values) { }
+  protected ComparerSortBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, DuplicateAndShuffleValues(values)) { }
 
-  [Benchmark(Baseline = true)]
-  public int Compare_Override_Sort() => Items.Skip(1).OrderBy(item => item).ToList().Count;
+  private static T[] DuplicateAndShuffleValues(T[] values) {
+    const int Factor = 10;
+    var array = Enumerable.Range(0, Factor).SelectMany(_ => values).ToArray();
+    Shuffle(array);
+    return array;
 
-  [Benchmark]
-  public int Compare_Comparer_Sort() => Items.Skip(1).OrderBy(item => item, Comparers.Comparer).ToList().Count;
+    static void Shuffle(T[] array) {
+#if NET6_0_OR_GREATER
+      var random = Random.Shared;
+#else
+      var random = new Random();
+#endif //NET6_0_OR_GREATER
+      var before = array.Length;
+      while(before > 1) {
+        var after = random.Next(before--);
+        (array[after], array[before]) = (array[before], array[after]);
+      }//while
+    }
+  }
 
-  [Benchmark]
-  public int Compare_Builder_Sort() => Items.Skip(1).OrderBy(item => item, Comparers.BuilderComparer).ToList().Count;
+  [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.IComparable)]
+  public int Compare_Override_Sort() => Items.OrderBy(item => item).ToList().Count;
 
-  [Benchmark]
-  public int Compare_Nito_Sort() => Items.Skip(1).OrderBy(item => item, Comparers.NitoFullComparer).ToList().Count;
+  [Benchmark(Description = BenchmarkDescriptions.Comparer)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.Comparer)]
+  public int Compare_Comparer_Sort() => Items.OrderBy(item => item, Comparers.Comparer).ToList().Count;
+
+  [Benchmark(Description = BenchmarkDescriptions.ComparerBuilder)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.ComparerBuilder)]
+  public int Compare_Builder_Sort() => Items.OrderBy(item => item, Comparers.BuilderComparer).ToList().Count;
+
+  [Benchmark(Description = BenchmarkDescriptions.NitoComparers)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.NitoComparers)]
+  public int Compare_Nito_Sort() => Items.OrderBy(item => item, Comparers.NitoFullComparer).ToList().Count;
 }
