@@ -1,0 +1,47 @@
+trigger:
+- main
+- feature/*
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildConfiguration: 'Release'
+
+steps:
+
+- task: UseDotNet@2
+  displayName: 'Install .NET'
+  inputs:
+    version: '7.x'
+    performMultiLevelLookup: true
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution'
+  inputs:
+    command: 'build'
+    projects: '$(solution)'
+    arguments: '--configuration "$(buildConfiguration)" --version-suffix "ci-$(Build.SourceVersion)-$(Build.SourceBranchName)-$(Build.BuildNumber)"'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run tests'
+  inputs:
+    command: 'test'
+    projects: '$(solution)'
+    arguments: '--no-build --configuration "$(buildConfiguration)" --collect "Code coverage"'
+
+- task: CopyFiles@2
+  displayName: 'Copy articacts'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/Source/NCompare/bin/$(buildConfiguration)'
+    Contents: |
+      NCompare.*.nupkg
+      NCompare.*.snupkg
+    TargetFolder: '$(Build.StagingDirectory)'
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish artifacts'
+  inputs:
+    targetPath: '$(Build.StagingDirectory)'
+    artifact: 'Packages'
