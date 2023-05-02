@@ -18,7 +18,7 @@ steps:
     performMultiLevelLookup: true
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build Solution'
+  displayName: 'Build solution'
   inputs:
     command: 'build'
     configuration: '$(buildConfiguration)'
@@ -32,8 +32,17 @@ steps:
     projects: '$(solution)'
     arguments: '--collect "Code coverage"'
 
+- task: CopyFiles@2
+  displayName: 'Copy articacts'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/Source/NCompare/bin/$(buildConfiguration)'
+    Contents: |
+      NCompare.*.nupkg
+      NCompare.*.snupkg
+    TargetFolder: '$(Build.StagingDirectory)'
+
 - task: PublishPipelineArtifact@1
   displayName: 'Publish artifacts'
   inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)' 
+    targetPath: '$(Build.StagingDirectory)' 
     artifact: 'Results'
