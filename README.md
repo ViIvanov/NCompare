@@ -1,6 +1,7 @@
 # NCompare
 
 [![NuGet version (NCompare)](https://img.shields.io/nuget/v/NCompare.svg?style=flat-square)](https://www.nuget.org/packages/NCompare/)
+[![Build Status](https://dev.azure.com/viivanov/NCompare/_apis/build/status%2FViIvanov.NCompare?branchName=main)](https://dev.azure.com/viivanov/NCompare/_build/latest?definitionId=7&branchName=main)
 
 The library provides the `ComparerBuilder<T>` type, which helps to create comparators (equality and sort comparators) for comparing objects of type `T`.
 
