@@ -30,9 +30,16 @@ steps:
 #     clean: true
 #     maximumCpuCount: true
 #     msbuildArchitecture: 'x64'
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '7.x'
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
+    configuration: '$(buildConfiguration)'
 
 # - task: VSTest@2
 #   inputs:
