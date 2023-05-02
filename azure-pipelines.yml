@@ -50,6 +50,7 @@ steps:
     command: 'test'
     configuration: '$(buildConfiguration)'
     projects: '$(solution)'
+    arguments: '--collect "Code coverage"'
 
 # - task: VSTest@2
 #   inputs:
