@@ -22,19 +22,19 @@ steps:
   inputs:
     command: 'build'
     projects: '$(solution)'
-    arguments: '--configuration "$(buildConfiguration)" --version-suffix "ci" --output "$(Build.BinariesDirectory)"'
+    arguments: '--configuration "$(buildConfiguration)" --version-suffix "ci"'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
   inputs:
     command: 'test'
-    projects: '$(Build.BinariesDirectory)'
-    arguments: '--no-build --configuration "$(buildConfiguration)" --collect "Code coverage"'
+    projects: '$(solution)'
+    arguments: '--no-build --configuration "$(buildConfiguration)" --collect "Code coverage" --results-directory "$(Common.TestResultsDirectory)"'
 
 - task: CopyFiles@2
   displayName: 'Copy articacts'
   inputs:
-    SourceFolder: '$(Build.BinariesDirectory)'
+    SourceFolder: '$(Build.SourcesDirectory)/Source/NCompare/bin/$(buildConfiguration)'
     Contents: |
       NCompare.*.nupkg
       NCompare.*.snupkg
