@@ -21,6 +21,7 @@
     <Version>$(VersionPrefix)</Version>
     <PublishRepositoryUrl>True</PublishRepositoryUrl>
     <IncludeSymbols>True</IncludeSymbols>
+    <EmbedAllSources>True</EmbedAllSources>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/ViIvanov/NCompare/</PackageProjectUrl>
