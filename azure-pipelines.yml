@@ -32,13 +32,22 @@ steps:
 #     msbuildArchitecture: 'x64'
 
 - task: UseDotNet@2
+  displayName: 'Install .NET'
   inputs:
     packageType: 'sdk'
     version: '7.x'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Build Solution'
   inputs:
     command: 'build'
+    configuration: '$(buildConfiguration)'
+    projects: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run tests'
+  inputs:
+    command: 'test'
     configuration: '$(buildConfiguration)'
     projects: '$(solution)'
 
