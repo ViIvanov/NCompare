@@ -29,7 +29,7 @@ steps:
   inputs:
     command: 'test'
     projects: '$(solution)'
-    arguments: '--no-build --configuration "$(buildConfiguration)" --collect "Code coverage" --results-directory "$(Common.TestResultsDirectory)"'
+    arguments: '--no-build --configuration "$(buildConfiguration)" --collect "Code coverage"'
 
 - task: CopyFiles@2
   displayName: 'Copy articacts'
