@@ -22,7 +22,7 @@ steps:
   inputs:
     command: 'build'
     projects: '$(solution)'
-    arguments: '--configuration "$(buildConfiguration)" --version-suffix "ci-$(Build.BuildId)-$(Build.SourceVersion)-$(Build.SourceBranch)"'
+    arguments: '--configuration "$(buildConfiguration)" --version-suffix "ci-$(Build.SourceVersion)-$(Build.SourceBranchName)-$(Build.BuildNumber)"'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
