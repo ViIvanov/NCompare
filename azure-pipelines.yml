@@ -40,6 +40,7 @@ steps:
   inputs:
     command: 'build'
     configuration: '$(buildConfiguration)'
+    projects: '$(solution)'
 
 # - task: VSTest@2
 #   inputs:
