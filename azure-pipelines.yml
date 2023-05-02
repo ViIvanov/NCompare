@@ -1,41 +1,21 @@
-# ASP.NET
-# Build and test ASP.NET projects.
-# Add steps that publish symbols, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
-
 trigger:
 - main
+- feature/*
 
 pool:
   vmImage: 'windows-latest'
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-#- task: NuGetToolInstaller@1
-
-# - task: NuGetCommand@2
-#   inputs:
-#     restoreSolution: '$(solution)'
-
-# - task: VSBuild@1
-#   inputs:
-#     solution: '$(solution)'
-#     msbuildArgs: '/p:PackageLocation="$(build.artifactStagingDirectory)"'
-#     platform: '$(buildPlatform)'
-#     configuration: '$(buildConfiguration)'
-#     clean: true
-#     maximumCpuCount: true
-#     msbuildArchitecture: 'x64'
 
 - task: UseDotNet@2
   displayName: 'Install .NET'
   inputs:
-    packageType: 'sdk'
     version: '7.x'
+    performMultiLevelLookup: true
 
 - task: DotNetCoreCLI@2
   displayName: 'Build Solution'
@@ -52,15 +32,9 @@ steps:
     projects: '$(solution)'
     arguments: '--collect "Code coverage"'
 
-# - task: VSTest@2
-#   inputs:
-#     testSelector: 'testAssemblies'
-#     testAssemblyVer2: |
-#       **\*test*.dll
-#       !**\*TestAdapter.dll
-#       !**\obj\**
-#       aaaa
-#     searchFolder: '$(System.DefaultWorkingDirectory)'
-#     platform: '$(buildPlatform)'
-#     configuration: '$(buildConfiguration)'
-#     codeCoverageEnabled: true
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: publish
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
