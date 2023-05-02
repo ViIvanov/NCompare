@@ -21,16 +21,17 @@ steps:
   displayName: 'Build solution'
   inputs:
     command: 'build'
-    configuration: '$(buildConfiguration)'
+    #configuration: '$(buildConfiguration)'
     projects: '$(solution)'
+    arguments: '--configuration "$(buildConfiguration)" --version-suffix "ci"'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
   inputs:
     command: 'test'
-    configuration: '$(buildConfiguration)'
+    #configuration: '$(buildConfiguration)'
     projects: '$(solution)'
-    arguments: '--collect "Code coverage"'
+    arguments: '--configuration "$(buildConfiguration)" --collect "Code coverage"'
 
 - task: CopyFiles@2
   displayName: 'Copy articacts'
