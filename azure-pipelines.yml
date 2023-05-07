@@ -39,9 +39,11 @@ steps:
       NCompare.*.nupkg
       NCompare.*.snupkg
     TargetFolder: '$(Build.StagingDirectory)'
+  condition: eq(variables.buildConfiguration, 'Release')
 
 - task: PublishPipelineArtifact@1
   displayName: 'Publish artifacts'
   inputs:
     targetPath: '$(Build.StagingDirectory)'
-    artifact: 'Packages'
+    artifact: 'NuGet Packages'
+  condition: eq(variables.buildConfiguration, 'Release')
