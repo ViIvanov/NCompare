@@ -6,27 +6,25 @@ strategy:
   matrix:
     Windows_Debug:
       image: 'windows-latest'
+      isWindows: true
       buildConfiguration: 'Debug'
     Windows_Release:
       image: 'windows-latest'
+      isWindows: true
       buildConfiguration: 'Release'
       publishArtifacts: true
     Ubuntu_Debug:
       image: 'ubuntu-latest'
       buildConfiguration: 'Debug'
-      excludeDotNetFramework: false
     Ubuntu_Release:
       image: 'ubuntu-latest'
       buildConfiguration: 'Release'
-      excludeDotNetFramework: false
     MacOS_Debug:
       image: 'macOS-latest'
       buildConfiguration: 'Debug'
-      excludeDotNetFramework: false
     MacOS_Release:
       image: 'macOS-latest'
       buildConfiguration: 'Release'
-      excludeDotNetFramework: false
 
 pool:
   vmImage: $(image)
@@ -34,7 +32,7 @@ pool:
 variables:
   solution: '**/*.sln'
   #buildConfiguration: '$(buildConfiguration)'
-  #excludeDotNetFramework: ${{ variables.staticVar }}
+  excludeDotNetFramework: $[ ne(variables.isWindows, true) ]
   #publishArtifacts: $(publishArtifacts)
 
 steps:
