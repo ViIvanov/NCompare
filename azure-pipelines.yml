@@ -2,12 +2,16 @@ trigger:
 - main
 - feature/*
 
-pool:
-  vmImage: 'windows-latest'
-
 variables:
   solution: '**/*.sln'
   buildConfiguration: 'Release'
+
+strategy:
+  matrix:
+    buildConfiguration: [Debug, Release]
+
+pool:
+  vmImage: 'windows-latest'
 
 steps:
 
@@ -39,11 +43,11 @@ steps:
       NCompare.*.nupkg
       NCompare.*.snupkg
     TargetFolder: '$(Build.StagingDirectory)'
-  condition: eq(variables.buildConfiguration, 'Release')
+  condition: and(succeeded(), eq(variables.buildConfiguration, 'Release'))
 
 - task: PublishPipelineArtifact@1
   displayName: 'Publish artifacts'
   inputs:
     targetPath: '$(Build.StagingDirectory)'
     artifact: 'NuGet Packages'
-  condition: eq(variables.buildConfiguration, 'Release')
+  condition: and(succeeded(), eq(variables.buildConfiguration, 'Release'))
