@@ -15,11 +15,11 @@ strategy:
 
 pool:
   # vmImage: 'windows-latest'
-  vmImage: $(matrix.image)
+  vmImage: $(image)
 
 variables:
   solution: '**/*.sln'
-  buildConfiguration: '$(matrix.buildConfiguration)'
+  buildConfiguration: '$(buildConfiguration)'
   excludeDotNetFramework: $(excludeDotNetFramework)
 
 steps:
