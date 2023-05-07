@@ -2,16 +2,16 @@ trigger:
 - main
 - feature/*
 
-variables:
-  solution: '**/*.sln'
-  buildConfiguration: 'Release'
-
 strategy:
   matrix:
-    buildConfiguration: [Debug, Release]
+    buildConfiguration: ['Debug', 'Release']
 
 pool:
   vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildConfiguration: '${{ matrix.buildConfiguration }}'
 
 steps:
 
