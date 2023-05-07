@@ -2,9 +2,9 @@ trigger:
 - main
 - feature/*
 
-strategy:
-  matrix:
-    buildConfiguration: ['Debug', 'Release']
+#strategy:
+matrix:
+  buildConfiguration: ['Debug', 'Release']
 
 pool:
   vmImage: 'windows-latest'
