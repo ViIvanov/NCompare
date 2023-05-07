@@ -5,9 +5,9 @@ trigger:
 strategy:
   matrix:
     Debug:
-      buildConfigurationMatrix: 'Debug'
+      buildConfiguration: 'Debug'
     Release:
-      buildConfigurationMatrix: 'Release'
+      buildConfiguration: 'Release'
 
 pool:
   vmImage: 'windows-latest'
@@ -15,7 +15,7 @@ pool:
 variables:
   solution: '**/*.sln'
   # buildConfiguration: '${{ matrix.buildConfiguration }}'
-  buildConfiguration: '$(buildConfigurationMatrix)'
+  buildConfiguration: '$(buildConfiguration)'
 
 steps:
 
