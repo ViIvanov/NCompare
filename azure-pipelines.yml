@@ -6,36 +6,37 @@ strategy:
   matrix:
     'Windows Debug':
       image: 'windows-latest'
-      excludeDotNetFramework: false
+      isWindows: true
       buildConfiguration: 'Debug'
     'Windows Release':
       image: 'windows-latest'
-      excludeDotNetFramework: false
+      isWindows: true
       buildConfiguration: 'Release'
     'Ubuntu Debug':
       image: 'ubuntu-latest'
-      excludeDotNetFramework: true
+      isWindows: false
       buildConfiguration: 'Debug'
     'Ubuntu Release':
       image: 'ubuntu-latest'
-      excludeDotNetFramework: true
+      isWindows: false
       buildConfiguration: 'Release'
     'MacOS Debug':
       image: 'macOS-latest'
-      excludeDotNetFramework: true
+      isWindows: false
       buildConfiguration: 'Debug'
     'MacOS Release':
       image: 'macOS-latest'
-      excludeDotNetFramework: true
+      isWindows: false
       buildConfiguration: 'Release'
 
 pool:
   vmImage: $(image)
 
 variables:
+  isWindows: $(isWindows)
   solution: '**/*.sln'
   buildConfiguration: '$(buildConfiguration)'
-  excludeDotNetFramework: $(excludeDotNetFramework)
+  excludeDotNetFramework: not($(isWindows))
 
 steps:
 
@@ -67,11 +68,11 @@ steps:
       NCompare.*.nupkg
       NCompare.*.snupkg
     TargetFolder: '$(Build.StagingDirectory)'
-  condition: and(succeeded(), eq(variables.buildConfiguration, 'Release'))
+  condition: and(succeeded(), variables.isWindows, eq(variables.buildConfiguration, 'Release'))
 
 - task: PublishPipelineArtifact@1
   displayName: 'Publish artifacts'
   inputs:
     targetPath: '$(Build.StagingDirectory)'
     artifact: 'NuGet Packages'
-  condition: and(succeeded(), eq(variables.buildConfiguration, 'Release'))
+  condition: and(succeeded(), variables.isWindows, eq(variables.buildConfiguration, 'Release'))
