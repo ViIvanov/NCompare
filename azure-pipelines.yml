@@ -4,6 +4,14 @@ trigger:
 
 strategy:
   matrix:
+    'Windows Debug':
+      image: 'windows-latest'
+      excludeDotNetFramework: false
+      buildConfiguration: 'Debug'
+    'Windows Release':
+      image: 'windows-latest'
+      excludeDotNetFramework: false
+      buildConfiguration: 'Release'
     'Ubuntu Debug':
       image: 'ubuntu-latest'
       excludeDotNetFramework: true
@@ -12,9 +20,16 @@ strategy:
       image: 'ubuntu-latest'
       excludeDotNetFramework: true
       buildConfiguration: 'Release'
+    'MacOS Debug':
+      image: 'macOS-latest'
+      excludeDotNetFramework: true
+      buildConfiguration: 'Debug'
+    'MacOS Release':
+      image: 'macOS-latest'
+      excludeDotNetFramework: true
+      buildConfiguration: 'Release'
 
 pool:
-  # vmImage: 'windows-latest'
   vmImage: $(image)
 
 variables:
