@@ -4,18 +4,23 @@ trigger:
 
 strategy:
   matrix:
-    Debug:
+    'Ubuntu Debug':
+      image: 'ubuntu-latest'
+      excludeDotNetFramework: true
       buildConfiguration: 'Debug'
-    Release:
+    'Ubuntu Release':
+      image: 'ubuntu-latest'
+      excludeDotNetFramework: true
       buildConfiguration: 'Release'
 
 pool:
-  vmImage: 'windows-latest'
+  # vmImage: 'windows-latest'
+  vmImage: $(matrix.image)
 
 variables:
   solution: '**/*.sln'
-  # buildConfiguration: '${{ matrix.buildConfiguration }}'
-  buildConfiguration: '$(buildConfiguration)'
+  buildConfiguration: '$(matrix.buildConfiguration)'
+  excludeDotNetFramework: $(excludeDotNetFramework)
 
 steps:
 
@@ -30,7 +35,7 @@ steps:
   inputs:
     command: 'build'
     projects: '$(solution)'
-    arguments: '--configuration "$(buildConfiguration)" /p:ContinuousIntegrationBuild=true /p:DeterministicSourcePaths=true --version-suffix "ci-$(Build.SourceBranchName)-$(Build.BuildNumber)"'
+    arguments: '--configuration "$(buildConfiguration)" /p:ContinuousIntegrationBuild=true /p:DeterministicSourcePaths=true /p:ExcludeDotNetFramework=$(excludeDotNetFramework) --version-suffix "ci-$(Build.SourceBranchName)-$(Build.BuildNumber)"'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
