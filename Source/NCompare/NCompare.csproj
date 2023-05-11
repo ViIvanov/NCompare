@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework Condition=" '$(ExcludeDotNetFramework)' == 'true' ">netstandard2.0</TargetFramework>
-    <TargetFrameworks Condition=" '$(ExcludeDotNetFramework)' != 'true' ">netstandard2.0; net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0; net461</TargetFrameworks>
     <LangVersion>Preview</LangVersion>
     <Nullable>Enable</Nullable>
     <WarningLevel>9999</WarningLevel>
