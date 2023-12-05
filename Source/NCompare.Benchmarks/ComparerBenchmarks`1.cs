@@ -1,15 +1,17 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿// Ignore Spelling: Nito
+
+using BenchmarkDotNet.Attributes;
 
 namespace NCompare.Benchmarks;
 
 public abstract class ComparerBenchmarks<T> : Benchmarks<T> where T : IComparable<T>
 {
-  protected ComparerBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, values) { }
+  protected ComparerBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
 }
 
 public abstract class ComparerEqualBenchmarks<T> : ComparerBenchmarks<T> where T : IComparable<T>
 {
-  protected ComparerEqualBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, values) { }
+  protected ComparerEqualBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
 
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.IComparable)]
@@ -17,20 +19,20 @@ public abstract class ComparerEqualBenchmarks<T> : ComparerBenchmarks<T> where T
 
   [Benchmark(Description = BenchmarkDescriptions.Comparer)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.Comparer)]
-  public int Compare_Comparer_Equal() => Comparers.Comparer.Compare(Item1_1, Item1_2);
+  public int Compare_Comparer_Equal() => Comparators.Comparer.Compare(Item1_1, Item1_2);
 
   [Benchmark(Description = BenchmarkDescriptions.ComparerBuilder)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.ComparerBuilder)]
-  public int Compare_Builder_Equal() => Comparers.BuilderComparer.Compare(Item1_1, Item1_2);
+  public int Compare_Builder_Equal() => Comparators.BuilderComparer.Compare(Item1_1, Item1_2);
 
-  [Benchmark(Description = BenchmarkDescriptions.NitoComparers)]
-  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.NitoComparers)]
-  public int Compare_Nito_Equal() => Comparers.NitoFullComparer.Compare(Item1_1, Item1_2);
+  [Benchmark(Description = BenchmarkDescriptions.NitoFullComparer)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.NitoFullComparer)]
+  public int Compare_Nito_Equal() => Comparators.NitoFullComparer.Compare(Item1_1, Item1_2);
 }
 
 public abstract class ComparerNotEqualBenchmarks<T> : ComparerBenchmarks<T> where T : IComparable<T>
 {
-  protected ComparerNotEqualBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, values) { }
+  protected ComparerNotEqualBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
 
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.IComparable)]
@@ -38,20 +40,20 @@ public abstract class ComparerNotEqualBenchmarks<T> : ComparerBenchmarks<T> wher
 
   [Benchmark(Description = BenchmarkDescriptions.Comparer)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.Comparer)]
-  public int Compare_Comparer_NotEqual() => Comparers.Comparer.Compare(Item1_1, Item2);
+  public int Compare_Comparer_NotEqual() => Comparators.Comparer.Compare(Item1_1, Item2);
 
   [Benchmark(Description = BenchmarkDescriptions.ComparerBuilder)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.ComparerBuilder)]
-  public int Compare_Builder_NotEqual() => Comparers.BuilderComparer.Compare(Item1_1, Item2);
+  public int Compare_Builder_NotEqual() => Comparators.BuilderComparer.Compare(Item1_1, Item2);
 
-  [Benchmark(Description = BenchmarkDescriptions.NitoComparers)]
-  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.NitoComparers)]
-  public int Compare_Nito_NotEqual() => Comparers.NitoFullComparer.Compare(Item1_1, Item2);
+  [Benchmark(Description = BenchmarkDescriptions.NitoFullComparer)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.NitoFullComparer)]
+  public int Compare_Nito_NotEqual() => Comparators.NitoFullComparer.Compare(Item1_1, Item2);
 }
 
 public abstract class ComparerSortBenchmarks<T> : ComparerBenchmarks<T> where T : IComparable<T>
 {
-  protected ComparerSortBenchmarks(TestComparers<T> comparers, params T[] values) : base(comparers, DuplicateAndShuffleValues(values)) { }
+  protected ComparerSortBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, DuplicateAndShuffleValues(values)) { }
 
   private static T[] DuplicateAndShuffleValues(T[] values) {
     const int Factor = 10;
@@ -79,13 +81,13 @@ public abstract class ComparerSortBenchmarks<T> : ComparerBenchmarks<T> where T 
 
   [Benchmark(Description = BenchmarkDescriptions.Comparer)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.Comparer)]
-  public int Compare_Comparer_Sort() => Items.OrderBy(item => item, Comparers.Comparer).ToList().Count;
+  public int Compare_Comparer_Sort() => Items.OrderBy(item => item, Comparators.Comparer).ToList().Count;
 
   [Benchmark(Description = BenchmarkDescriptions.ComparerBuilder)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.ComparerBuilder)]
-  public int Compare_Builder_Sort() => Items.OrderBy(item => item, Comparers.BuilderComparer).ToList().Count;
+  public int Compare_Builder_Sort() => Items.OrderBy(item => item, Comparators.BuilderComparer).ToList().Count;
 
-  [Benchmark(Description = BenchmarkDescriptions.NitoComparers)]
-  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.NitoComparers)]
-  public int Compare_Nito_Sort() => Items.OrderBy(item => item, Comparers.NitoFullComparer).ToList().Count;
+  [Benchmark(Description = BenchmarkDescriptions.NitoFullComparer)]
+  [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Sort, BenchmarkDescriptions.NitoFullComparer)]
+  public int Compare_Nito_Sort() => Items.OrderBy(item => item, Comparators.NitoFullComparer).ToList().Count;
 }

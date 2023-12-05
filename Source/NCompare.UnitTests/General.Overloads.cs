@@ -32,7 +32,7 @@ partial class General
   }
 }
 
-file class TContainer
+file sealed class TContainer
 {
   public TObject? MyObject { get; set; }
   public TValue MyValue { get; set; }

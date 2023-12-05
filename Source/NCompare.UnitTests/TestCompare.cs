@@ -4,24 +4,24 @@ namespace NCompare.UnitTests;
 
 internal static class TestCompare
 {
-  public static void TestCollectionComparers<TCollection, TItem>(string title, Func<TItem?[], TCollection> factory, TItem notDefaultItem, ComparerBuilder<TCollection> comparerBuilder) {
+  public static void TestCollectionComparators<TCollection, TItem>(string title, Func<TItem?[], TCollection> factory, TItem notDefaultItem, ComparerBuilder<TCollection> comparerBuilder) {
     ArgumentNullException.ThrowIfNull(factory);
     ArgumentNullException.ThrowIfNull(comparerBuilder);
 
-    var emptyCollection = factory(Array.Empty<TItem>());
-    TestComparers($"{title}: Default collections equal", default, default, CompareResult.Equal, comparerBuilder);
-    TestComparers($"{title}: Default and Empty collections equal", default, emptyCollection, CompareResult.Equal, comparerBuilder);
-    TestComparers($"{title}: Empty collections equal", emptyCollection, emptyCollection, CompareResult.Equal, comparerBuilder);
+    var emptyCollection = factory([]);
+    TestComparators($"{title}: Default collections equal", default, default, CompareResult.Equal, comparerBuilder);
+    TestComparators($"{title}: Default and Empty collections equal", default, emptyCollection, CompareResult.Equal, comparerBuilder);
+    TestComparators($"{title}: Empty collections equal", emptyCollection, emptyCollection, CompareResult.Equal, comparerBuilder);
 
-    var oneDefaultItemCollection = factory(new TItem?[] { default, });
-    TestComparers($"{title}: Default and One", default, oneDefaultItemCollection, CompareResult.LessThan, comparerBuilder);
-    TestComparers($"{title}: Empty and One", emptyCollection, oneDefaultItemCollection, CompareResult.LessThan, comparerBuilder);
+    var oneDefaultItemCollection = factory([default,]);
+    TestComparators($"{title}: Default and One", default, oneDefaultItemCollection, CompareResult.LessThan, comparerBuilder);
+    TestComparators($"{title}: Empty and One", emptyCollection, oneDefaultItemCollection, CompareResult.LessThan, comparerBuilder);
 
     var oneNotDefaultItemCollection = factory(new[] { notDefaultItem, });
-    TestComparers($"{title}: Default Item and NotDefault Item", oneDefaultItemCollection, oneNotDefaultItemCollection, CompareResult.LessThan, comparerBuilder);
+    TestComparators($"{title}: Default Item and NotDefault Item", oneDefaultItemCollection, oneNotDefaultItemCollection, CompareResult.LessThan, comparerBuilder);
   }
 
-  public static void TestComparers<T>(string title, T? x, T? y, CompareResult expected, ComparerBuilder<T> comparerBuilder) {
+  public static void TestComparators<T>(string title, T? x, T? y, CompareResult expected, ComparerBuilder<T> comparerBuilder) {
     ArgumentNullException.ThrowIfNull(comparerBuilder);
 
     var equalityComparer = comparerBuilder.CreateEqualityComparer();
@@ -31,7 +31,7 @@ internal static class TestCompare
     TestComparer(title, x, y, expected, comparer);
   }
 
-  public static void TestComparers<T>(string title, T? x, T? y, CompareResult expected, IEqualityComparer<T> equalityComparer, IComparer<T> comparer) {
+  public static void TestComparators<T>(string title, T? x, T? y, CompareResult expected, IEqualityComparer<T> equalityComparer, IComparer<T> comparer) {
     TestEqualityComparer(title, x, y, expected is CompareResult.Equal, equalityComparer);
     TestComparer(title, x, y, expected, comparer);
   }
