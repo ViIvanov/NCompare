@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net7.0; net461</TargetFrameworks>
+    <TargetFrameworks>net8.0; net461</TargetFrameworks>
     <LangVersion>Preview</LangVersion>
     <Nullable>Enable</Nullable>
     <WarningLevel>9999</WarningLevel>
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.11" />
     <PackageReference Include="Nito.Comparers" Version="6.2.2" />
   </ItemGroup>
 

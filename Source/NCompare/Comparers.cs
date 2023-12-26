@@ -14,21 +14,16 @@ internal static class Comparers
   }
 
   [Serializable]
-  private sealed class MethodEqualityComparer<T> : EqualityComparer<T>
+  private sealed class MethodEqualityComparer<T>(Func<T, T, bool> equals, Func<T, int> hashCode) : EqualityComparer<T>
   {
-    public MethodEqualityComparer(Func<T, T, bool> equals, Func<T, int> hashCode) {
-      EqualsMethod = equals ?? throw new ArgumentNullException(nameof(equals));
-      GetHashCodeMethod = hashCode ?? throw new ArgumentNullException(nameof(hashCode));
-    }
-
-    private Func<T, T, bool> EqualsMethod { get; }
-    private Func<T, int> GetHashCodeMethod { get; }
+    private Func<T, T, bool> EqualsMethod { get; } = equals ?? throw new ArgumentNullException(nameof(equals));
+    private Func<T, int> GetHashCodeMethod { get; } = hashCode ?? throw new ArgumentNullException(nameof(hashCode));
 
     public override bool Equals(T x, T y) => EqualsMethod(x, y);
     public override int GetHashCode(T obj) => GetHashCodeMethod(obj);
 
     public override bool Equals(object obj) => obj is MethodEqualityComparer<T> other
-      && other.EqualsMethod == EqualsMethod && other.GetHashCodeMethod == GetHashCodeMethod;
+      && (other.EqualsMethod, other.GetHashCodeMethod) == (EqualsMethod, GetHashCodeMethod);
 
     public override int GetHashCode() => (EqualsMethod, GetHashCodeMethod).GetHashCode();
   }

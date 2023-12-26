@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <VersionPrefix>1.0.2</VersionPrefix>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
@@ -31,14 +31,15 @@
     <RepositoryUrl>https://github.com/ViIvanov/NCompare.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Copyright>Copyright © 2023 @ViIvanov</Copyright>
+    <Copyright>Copyright © 2010 — 2023 @ViIvanov</Copyright>
     <Description>NCompare library provides an ability to easy build comparators (EqualityComparer&lt;&gt; / Comparer&lt;&gt;) for .NET / C# types. Based on Linq expressions for describe an object structure.</Description>
     <PackageReadmeFile>Readme.nuget.md</PackageReadmeFile>
     <Authors>ViIvanov</Authors>
+    <PackageIcon>NCompare.jpg</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -51,6 +52,10 @@
       <PackagePath />
     </None>
     <None Include="..\Readme.nuget.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\NCompare.jpg">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

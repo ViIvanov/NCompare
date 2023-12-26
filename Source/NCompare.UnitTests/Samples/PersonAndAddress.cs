@@ -97,10 +97,10 @@ public sealed class PersonAndAddress
       },
     };
 
-    TestComparers("1 and 2", person1, person2, CompareResult.LessThan, PersonComparerBuilder);
-    TestComparers("2 and 3", person2, person3, CompareResult.LessThan, PersonComparerBuilder);
-    TestComparers("3 and 1", person3, person1, CompareResult.GreaterThan, PersonComparerBuilder);
-    TestComparers("3 and 4", person3, person4, CompareResult.Equal, PersonComparerBuilder);
+    TestComparators("1 and 2", person1, person2, CompareResult.LessThan, PersonComparerBuilder);
+    TestComparators("2 and 3", person2, person3, CompareResult.LessThan, PersonComparerBuilder);
+    TestComparators("3 and 1", person3, person1, CompareResult.GreaterThan, PersonComparerBuilder);
+    TestComparators("3 and 4", person3, person4, CompareResult.Equal, PersonComparerBuilder);
   }
 
   [TestMethod]

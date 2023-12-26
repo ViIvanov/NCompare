@@ -66,7 +66,7 @@ internal sealed class BenchmarkOrderer : IOrderer
         BenchmarkDescriptions.EqualityComparer => $"2: {BenchmarkDescriptions.EqualityComparer}",
         BenchmarkDescriptions.Comparer => $"3: {BenchmarkDescriptions.Comparer}",
         BenchmarkDescriptions.ComparerBuilder => $"4: {BenchmarkDescriptions.ComparerBuilder}",
-        BenchmarkDescriptions.NitoComparers => $"5: {BenchmarkDescriptions.NitoComparers}",
+        BenchmarkDescriptions.NitoFullComparer => $"5: {BenchmarkDescriptions.NitoFullComparer}",
         var unknown => $"6: Unknown: {unknown}",
       };
       builder.Append('|').Append(methodKind);

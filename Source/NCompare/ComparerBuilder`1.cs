@@ -12,18 +12,18 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
 {
   #region Cached Expression and Reflection objects
 
-  internal static readonly ParameterExpression X = Parameter(typeof(T), nameof(X).ToLowerInvariant());
-  internal static readonly ParameterExpression Y = Parameter(typeof(T), nameof(Y).ToLowerInvariant());
-  internal static readonly ParameterExpression Obj = Parameter(typeof(T), nameof(Obj).ToLowerInvariant());
+  internal static readonly ParameterExpression X = Parameter(typeof(T), "x");
+  internal static readonly ParameterExpression Y = Parameter(typeof(T), "y");
+  internal static readonly ParameterExpression Obj = Parameter(typeof(T), "obj");
 
   private static readonly Type ComparedType = typeof(T);
   private static readonly bool IsValueType = ComparedType.IsValueType;
 
   #endregion Cached Expression and Reflection objects
 
-  public ComparerBuilder() : this(expressions: new()) { }
+  public ComparerBuilder() : this(expressions: []) { }
 
-  public ComparerBuilder(IComparerBuilderInterception? interception) : this(expressions: new(), interception) { }
+  public ComparerBuilder(IComparerBuilderInterception? interception) : this(expressions: [], interception) { }
 
   private ComparerBuilder(List<IComparerBuilderExpression> expressions, IComparerBuilderInterception? interception = null) {
     Expressions = expressions ?? throw new ArgumentNullException(nameof(expressions));

@@ -11,13 +11,13 @@ using BenchmarkDotNet.Running;
 using NCompare.Benchmarks;
 
 if(args is null || args.Length == 0) {
-  args = new[] { "--filter", "*", };
+  args = ["--filter", "*"];
 }//if
 
 var config = ManualConfig.CreateEmpty()
   .AddJob(Configure(Job.Default.WithRuntime(ClrRuntime.Net461)))
   .AddJob(Configure(Job.Default.WithRuntime(ClrRuntime.Net472)))
-  .AddJob(Configure(Job.Default.WithRuntime(CoreRuntime.Core70)))
+  .AddJob(Configure(Job.Default.WithRuntime(CoreRuntime.Core60)))
   .AddJob(Configure(Job.Default.WithRuntime(CoreRuntime.Core80)))
   .AddColumn(JobCharacteristicColumn.AllColumns)
   .AddColumn(BenchmarkOperationColumn.TypeKind, BenchmarkOperationColumn.Operation, BenchmarkComparerColumn.Default)
@@ -28,6 +28,9 @@ var config = ManualConfig.CreateEmpty()
   .AddExporter(DefaultExporters.RPlot, DefaultExporters.Csv, DefaultExporters.Html, DefaultExporters.Markdown)
   .AddAnalyser(EnvironmentAnalyser.Default)
   .WithOptions(ConfigOptions.JoinSummary)
+#if DEBUG
+  .WithOptions(ConfigOptions.DisableOptimizationsValidator)
+#endif // DEBUG
   .WithSummaryStyle(SummaryStyle.Default)
   .WithUnionRule(ConfigUnionRule.Union);
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);

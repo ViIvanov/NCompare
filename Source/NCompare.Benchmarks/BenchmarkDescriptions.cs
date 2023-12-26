@@ -1,4 +1,6 @@
-﻿namespace NCompare.Benchmarks;
+﻿// Ignore Spelling: Nito
+
+namespace NCompare.Benchmarks;
 
 internal static class BenchmarkDescriptions
 {
@@ -9,5 +11,5 @@ internal static class BenchmarkDescriptions
   public const string Comparer = "Comparer<T>";
 
   public const string ComparerBuilder = "ComparerBuilder<T>";
-  public const string NitoComparers = "IFullComparer<T>";
+  public const string NitoFullComparer = "IFullComparer<T>";
 }

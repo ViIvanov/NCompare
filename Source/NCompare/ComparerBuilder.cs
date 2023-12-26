@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace NCompare;
 
@@ -16,7 +15,7 @@ internal static class ComparerBuilder
   public static ConstantExpression MinusOne { get; } = Constant(-1);
 
   public static ParameterExpression Compare { get; } = Parameter(typeof(int));
-  public static IReadOnlyList<ParameterExpression> CompareVariables { get; } = new ReadOnlyCollection<ParameterExpression>(new[] { Compare, });
+  public static IReadOnlyList<ParameterExpression> CompareVariables { get; } = [Compare];
 
   public static LabelTarget LabelTargetReturn { get; } = Label(typeof(int));
   public static Expression LabelZero { get; } = Label(LabelTargetReturn, Zero);
