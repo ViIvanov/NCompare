@@ -1,10 +1,12 @@
-﻿using Nito.Comparers;
+﻿// Ignore Spelling: Nito
+
+using Nito.Comparers;
 
 namespace NCompare.Benchmarks;
 
-public sealed class TestComparers<T>
+public sealed class TestComparators<T>
 {
-  public TestComparers(IEqualityComparer<T> equalityComparer, IComparer<T> comparer, ComparerBuilder<T> comparerBuilder, IFullComparer<T> nitoFullComparer) {
+  public TestComparators(IEqualityComparer<T> equalityComparer, IComparer<T> comparer, ComparerBuilder<T> comparerBuilder, IFullComparer<T> nitoFullComparer) {
     EqualityComparer = equalityComparer ?? throw new ArgumentNullException(nameof(equalityComparer));
     Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
 

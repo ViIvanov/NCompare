@@ -1,3 +1,5 @@
+// Ignore Spelling: Nullable
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NCompare.UnitTests;
@@ -114,14 +116,14 @@ public sealed partial class General
   }
 
   [TestMethod]
-  public void ComplexComparers() {
+  public void ComplexComparators() {
     var x = new TestValue(1);
     var y = new TestValue(1);
     var z = new TestValue(2);
 
     var builder = new ComparerBuilder<TestValue>().Add(item => item.Number);
-    TestComparers("Equal TestValues", x, y, CompareResult.Equal, builder);
-    TestComparers("Not equal TestValues", x, z, CompareResult.LessThan, builder);
+    TestComparators("Equal TestValues", x, y, CompareResult.Equal, builder);
+    TestComparators("Not equal TestValues", x, z, CompareResult.LessThan, builder);
   }
 
   #endregion Regular Tests
@@ -147,9 +149,9 @@ public sealed partial class General
     var data3 = new DerivedTestValue(6, DateTime.Now, new OtherValue("a"));
     var data4 = new DerivedTestValue(1, null, new OtherValue("b"));
 
-    TestComparers("Compare 1 and 2", data1, data2, expected: CompareResult.Equal, builderData);
-    TestComparers("Compare 2 and 3", data2, data3, expected: CompareResult.GreaterThan, builderData);
-    TestComparers("Compare 1 and 4", data1, data4, expected: CompareResult.LessThan, builderData);
+    TestComparators("Compare 1 and 2", data1, data2, expected: CompareResult.Equal, builderData);
+    TestComparators("Compare 2 and 3", data2, data3, expected: CompareResult.GreaterThan, builderData);
+    TestComparators("Compare 1 and 4", data1, data4, expected: CompareResult.LessThan, builderData);
   }
 
   [TestMethod]

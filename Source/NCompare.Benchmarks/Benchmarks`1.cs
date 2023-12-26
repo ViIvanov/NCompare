@@ -1,9 +1,11 @@
 ﻿namespace NCompare.Benchmarks;
 
+#pragma warning disable CA1724 // Type names should not match namespaces
 public abstract class Benchmarks<T>
+#pragma warning restore CA1724 // Type names should not match namespaces
 {
-  protected Benchmarks(TestComparers<T> comparers, params T[] values) {
-    Comparers = comparers ?? throw new ArgumentNullException(nameof(comparers));
+  protected Benchmarks(TestComparators<T> comparators, params T[] values) {
+    Comparators = comparators ?? throw new ArgumentNullException(nameof(comparators));
     Items = values ?? throw new ArgumentNullException(nameof(values));
 
     if(Items.Count < 3) {
@@ -13,7 +15,7 @@ public abstract class Benchmarks<T>
     (Item1_1, Item1_2, Item2) = (Items[0], Items[1], Items[2]);
   }
 
-  public TestComparers<T> Comparers { get; }
+  public TestComparators<T> Comparators { get; }
 
   public IReadOnlyList<T> Items { get; }
 

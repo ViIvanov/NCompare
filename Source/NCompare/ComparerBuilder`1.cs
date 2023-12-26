@@ -12,9 +12,9 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
 {
   #region Cached Expression and Reflection objects
 
-  internal static readonly ParameterExpression X = Parameter(typeof(T), nameof(X).ToLowerInvariant());
-  internal static readonly ParameterExpression Y = Parameter(typeof(T), nameof(Y).ToLowerInvariant());
-  internal static readonly ParameterExpression Obj = Parameter(typeof(T), nameof(Obj).ToLowerInvariant());
+  internal static readonly ParameterExpression X = Parameter(typeof(T), "x");
+  internal static readonly ParameterExpression Y = Parameter(typeof(T), "y");
+  internal static readonly ParameterExpression Obj = Parameter(typeof(T), "obj");
 
   private static readonly Type ComparedType = typeof(T);
   private static readonly bool IsValueType = ComparedType.IsValueType;

@@ -1,10 +1,14 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿// Ignore Spelling: Nito Nullable
+
+using BenchmarkDotNet.Attributes;
 
 using Nito.Comparers;
 
 namespace NCompare.Benchmarks;
 
+#pragma warning disable CA1036 // Override methods on comparable types
 public sealed class SampleClass : IEquatable<SampleClass>, IComparable<SampleClass>
+#pragma warning restore CA1036 // Override methods on comparable types
 {
   public int Number { get; set; }
   public DateTime? NullableDateTime { get; set; }
@@ -36,7 +40,7 @@ public sealed class SampleClass : IEquatable<SampleClass>, IComparable<SampleCla
       return compare;
     }//if
 
-    return String.Compare(Text, other.Text);
+    return String.Compare(Text, other.Text, StringComparison.Ordinal);
   }
 }
 
@@ -78,7 +82,7 @@ internal sealed class SampleClassComparer : IEqualityComparer<SampleClass>, ICom
         return compare;
       }//if
 
-      return String.Compare(x.Text, y.Text);
+      return String.Compare(x.Text, y.Text, StringComparison.Ordinal);
     }//if
   }
 }
@@ -104,41 +108,41 @@ internal static class SampleClassBenchmarks
     .ThenBy(p => p.NullableDateTime)
     .ThenBy(p => p.Text);
 
-  public static TestComparers<SampleClass> AllComparers { get; } = new(Comparer, Comparer, ComparerBuilder, NitoFullComparer);
+  public static TestComparators<SampleClass> AllComparators { get; } = new(Comparer, Comparer, ComparerBuilder, NitoFullComparer);
 }
 
 [BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.Equal)]
 public class SampleClassEqualityComparerEqualBenchmarks : EqualityComparerEqualBenchmarks<SampleClass>
 {
-  public SampleClassEqualityComparerEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
+  public SampleClassEqualityComparerEqualBenchmarks() : base(SampleClassBenchmarks.AllComparators, SampleClassBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.NotEqual)]
 public class SampleClassEqualityComparerNotEqualBenchmarks : EqualityComparerNotEqualBenchmarks<SampleClass>
 {
-  public SampleClassEqualityComparerNotEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
+  public SampleClassEqualityComparerNotEqualBenchmarks() : base(SampleClassBenchmarks.AllComparators, SampleClassBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.GetHashCode)]
 public class SampleClassEqualityComparerGetHashCodeBenchmarks : EqualityComparerGetHashCodeBenchmarks<SampleClass>
 {
-  public SampleClassEqualityComparerGetHashCodeBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
+  public SampleClassEqualityComparerGetHashCodeBenchmarks() : base(SampleClassBenchmarks.AllComparators, SampleClassBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.Comparer, BenchmarkCategories.Equal)]
 public class SampleClassComparerEqualBenchmarks : ComparerEqualBenchmarks<SampleClass>
 {
-  public SampleClassComparerEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
+  public SampleClassComparerEqualBenchmarks() : base(SampleClassBenchmarks.AllComparators, SampleClassBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual)]
 public class SampleClassComparerNotEqualBenchmarks : ComparerNotEqualBenchmarks<SampleClass>
 {
-  public SampleClassComparerNotEqualBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
+  public SampleClassComparerNotEqualBenchmarks() : base(SampleClassBenchmarks.AllComparators, SampleClassBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ReferenceType, BenchmarkCategories.Comparer, BenchmarkCategories.Sort)]
 public class SampleClassComparerSortBenchmarks : ComparerSortBenchmarks<SampleClass>
 {
-  public SampleClassComparerSortBenchmarks() : base(SampleClassBenchmarks.AllComparers, SampleClassBenchmarks.AllItems) { }
+  public SampleClassComparerSortBenchmarks() : base(SampleClassBenchmarks.AllComparators, SampleClassBenchmarks.AllItems) { }
 }

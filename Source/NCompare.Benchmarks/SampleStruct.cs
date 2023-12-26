@@ -1,10 +1,14 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿// Ignore Spelling: Nito Nullable
+
+using BenchmarkDotNet.Attributes;
 
 using Nito.Comparers;
 
 namespace NCompare.Benchmarks;
 
+#pragma warning disable CA1036 // Override methods on comparable types
 public readonly struct SampleStruct(int number, DateTime? dateTime, string? text) : IEquatable<SampleStruct>, IComparable<SampleStruct>
+#pragma warning restore CA1036 // Override methods on comparable types
 {
   public int Number { get; } = number;
   public DateTime? NullableDateTime { get; } = dateTime;
@@ -32,7 +36,7 @@ public readonly struct SampleStruct(int number, DateTime? dateTime, string? text
       return compare;
     }//if
 
-    return String.Compare(Text, other.Text);
+    return String.Compare(Text, other.Text, StringComparison.Ordinal);
   }
 
   public static bool operator ==(SampleStruct left, SampleStruct right) => left.Equals(right);
@@ -60,7 +64,7 @@ internal sealed class SampleStructComparer : IEqualityComparer<SampleStruct>, IC
       return compare;
     }//if
 
-    return String.Compare(x.Text, y.Text);
+    return String.Compare(x.Text, y.Text, StringComparison.Ordinal);
   }
 }
 
@@ -85,41 +89,41 @@ internal static class SampleStructBenchmarks
     .ThenBy(p => p.NullableDateTime)
     .ThenBy(p => p.Text);
 
-  public static TestComparers<SampleStruct> AllComparers { get; } = new(Comparer, Comparer, ComparerBuilder, NitoFullComparer);
+  public static TestComparators<SampleStruct> AllComparators { get; } = new(Comparer, Comparer, ComparerBuilder, NitoFullComparer);
 }
 
 [BenchmarkCategory(BenchmarkCategories.ValueType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.Equal)]
 public class SampleStructEqualityComparerEqualBenchmarks : EqualityComparerEqualBenchmarks<SampleStruct>
 {
-  public SampleStructEqualityComparerEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
+  public SampleStructEqualityComparerEqualBenchmarks() : base(SampleStructBenchmarks.AllComparators, SampleStructBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ValueType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.NotEqual)]
 public class SampleStructEqualityComparerNotEqualBenchmarks : EqualityComparerNotEqualBenchmarks<SampleStruct>
 {
-  public SampleStructEqualityComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
+  public SampleStructEqualityComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.AllComparators, SampleStructBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ValueType, BenchmarkCategories.EqualityComparer, BenchmarkCategories.GetHashCode)]
 public class SampleStructEqualityComparerGetHashCodeBenchmarks : EqualityComparerGetHashCodeBenchmarks<SampleStruct>
 {
-  public SampleStructEqualityComparerGetHashCodeBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
+  public SampleStructEqualityComparerGetHashCodeBenchmarks() : base(SampleStructBenchmarks.AllComparators, SampleStructBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ValueType, BenchmarkCategories.Comparer, BenchmarkCategories.Equal)]
 public class SampleStructComparerEqualBenchmarks : ComparerEqualBenchmarks<SampleStruct>
 {
-  public SampleStructComparerEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
+  public SampleStructComparerEqualBenchmarks() : base(SampleStructBenchmarks.AllComparators, SampleStructBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ValueType, BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual)]
 public class SampleStructComparerNotEqualBenchmarks : ComparerNotEqualBenchmarks<SampleStruct>
 {
-  public SampleStructComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
+  public SampleStructComparerNotEqualBenchmarks() : base(SampleStructBenchmarks.AllComparators, SampleStructBenchmarks.AllItems) { }
 }
 
 [BenchmarkCategory(BenchmarkCategories.ValueType, BenchmarkCategories.Comparer, BenchmarkCategories.Sort)]
 public class SampleStructComparerSortBenchmarks : ComparerSortBenchmarks<SampleStruct>
 {
-  public SampleStructComparerSortBenchmarks() : base(SampleStructBenchmarks.AllComparers, SampleStructBenchmarks.AllItems) { }
+  public SampleStructComparerSortBenchmarks() : base(SampleStructBenchmarks.AllComparators, SampleStructBenchmarks.AllItems) { }
 }

@@ -26,7 +26,7 @@ public sealed class Recursion
     Test("1/3", list1, list3, expected: CompareResult.Equal, builder, customEqualityComparer);
 
     static void Test<T>(string title, T? x, T? y, CompareResult expected, ComparerBuilder<T> builder, IEqualityComparer<T> equalityComparer) {
-      TestComparers(title, x, y, expected, builder);
+      TestComparators(title, x, y, expected, builder);
       TestEqualityComparer(title, x, y, expected is CompareResult.Equal, EqualityComparer<T>.Default);
       TestEqualityComparer(title, x, y, expected is CompareResult.Equal, equalityComparer);
     }
@@ -93,10 +93,10 @@ public sealed class Recursion
     var z = FixParam(CreateXParam(), 5);
     var w = FixParam(CreateXParam(), -3);
 
-    TestComparers("x/y", x, y, expected: CompareResult.Equal, xbuilder);
-    TestComparers("x/z", x, z, expected: CompareResult.LessThan, xbuilder);
-    TestComparers("y/w", y, w, expected: CompareResult.GreaterThan, xbuilder);
-    TestComparers("z/w", z, w, expected: CompareResult.GreaterThan, xbuilder);
+    TestComparators("x/y", x, y, expected: CompareResult.Equal, xbuilder);
+    TestComparators("x/z", x, z, expected: CompareResult.LessThan, xbuilder);
+    TestComparators("y/w", y, w, expected: CompareResult.GreaterThan, xbuilder);
+    TestComparators("z/w", z, w, expected: CompareResult.GreaterThan, xbuilder);
 
     static XParam CreateXParam() => new() {
       Name = "A",
