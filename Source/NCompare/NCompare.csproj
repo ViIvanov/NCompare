@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework Condition=" '$(ExcludeDotNetFramework)' == 'true' ">netstandard2.0</TargetFramework>
-    <TargetFrameworks Condition=" '$(ExcludeDotNetFramework)' != 'true' ">netstandard2.0; net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0; net461</TargetFrameworks>
     <LangVersion>Preview</LangVersion>
     <Nullable>Enable</Nullable>
     <WarningLevel>9999</WarningLevel>
@@ -16,8 +15,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <GeneratePackageOnBuild Condition=" '$(Configuration)' == 'Release' ">True</GeneratePackageOnBuild>
-    <VersionSuffix></VersionSuffix>
     <Version>$(VersionPrefix)</Version>
     <PublishRepositoryUrl>True</PublishRepositoryUrl>
     <IncludeSymbols>True</IncludeSymbols>

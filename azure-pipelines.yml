@@ -2,12 +2,33 @@ trigger:
 - main
 - feature/*
 
+strategy:
+  matrix:
+    Windows_Debug:
+      image: 'windows-latest'
+      buildConfiguration: 'Debug'
+    Windows_Release:
+      image: 'windows-latest'
+      buildConfiguration: 'Release'
+      publishArtifacts: true
+    Ubuntu_Debug:
+      image: 'ubuntu-latest'
+      buildConfiguration: 'Debug'
+    Ubuntu_Release:
+      image: 'ubuntu-latest'
+      buildConfiguration: 'Release'
+    MacOS_Debug:
+      image: 'macOS-latest'
+      buildConfiguration: 'Debug'
+    MacOS_Release:
+      image: 'macOS-latest'
+      buildConfiguration: 'Release'
+
 pool:
-  vmImage: 'windows-latest'
+  vmImage: $(image)
 
 variables:
   solution: '**/*.sln'
-  buildConfiguration: 'Release'
 
 steps:
 
@@ -22,7 +43,7 @@ steps:
   inputs:
     command: 'build'
     projects: '$(solution)'
-    arguments: '--configuration "$(buildConfiguration)" --version-suffix "ci-$(Build.SourceVersion)-$(Build.SourceBranchName)-$(Build.BuildNumber)"'
+    arguments: '--configuration "$(buildConfiguration)" /p:ContinuousIntegrationBuild=true /p:DeterministicSourcePaths=true --version-suffix "ci-$(Build.SourceBranchName)-$(Build.BuildNumber)"'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run tests'
@@ -39,9 +60,11 @@ steps:
       NCompare.*.nupkg
       NCompare.*.snupkg
     TargetFolder: '$(Build.StagingDirectory)'
+  condition: and(succeeded(), eq(variables.publishArtifacts, 'true'))
 
 - task: PublishPipelineArtifact@1
   displayName: 'Publish artifacts'
   inputs:
     targetPath: '$(Build.StagingDirectory)'
-    artifact: 'Packages'
+    artifact: 'NuGet Packages'
+  condition: and(succeeded(), eq(variables.publishArtifacts, 'true'))
