@@ -21,9 +21,9 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
 
   #endregion Cached Expression and Reflection objects
 
-  public ComparerBuilder() : this(expressions: new()) { }
+  public ComparerBuilder() : this(expressions: []) { }
 
-  public ComparerBuilder(IComparerBuilderInterception? interception) : this(expressions: new(), interception) { }
+  public ComparerBuilder(IComparerBuilderInterception? interception) : this(expressions: [], interception) { }
 
   private ComparerBuilder(List<IComparerBuilderExpression> expressions, IComparerBuilderInterception? interception = null) {
     Expressions = expressions ?? throw new ArgumentNullException(nameof(expressions));

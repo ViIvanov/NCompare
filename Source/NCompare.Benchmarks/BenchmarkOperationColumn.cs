@@ -56,7 +56,7 @@ internal sealed class BenchmarkOperationColumn : BenchmarkColumn
     };
   }
 
-  public static string[] GetTypeBenchmarkCategories(BenchmarkCase benchmarkCase) => benchmarkCase?.Descriptor.Type.GetCustomAttribute<BenchmarkCategoryAttribute>()?.Categories ?? Array.Empty<string>();
+  public static string[] GetTypeBenchmarkCategories(BenchmarkCase benchmarkCase) => benchmarkCase?.Descriptor.Type.GetCustomAttribute<BenchmarkCategoryAttribute>()?.Categories ?? [];
   public static bool? IsReferenceTypeKind(string[] categories) => categories.Contains(BenchmarkCategories.ReferenceType) ? true : categories.Contains(BenchmarkCategories.ValueType) ? false : null;
   public static bool? IsEqualityComparerKind(string[] categories) => categories.Contains(BenchmarkCategories.EqualityComparer) ? true : categories.Contains(BenchmarkCategories.Comparer) ? false : null;
   public static string GetBenchmarkKind(string[] categories) => categories.LastOrDefault() ?? String.Empty;

@@ -11,7 +11,7 @@ using BenchmarkDotNet.Running;
 using NCompare.Benchmarks;
 
 if(args is null || args.Length == 0) {
-  args = new[] { "--filter", "*", };
+  args = ["--filter", "*"];
 }//if
 
 var config = ManualConfig.CreateEmpty()

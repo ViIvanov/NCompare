@@ -90,7 +90,7 @@ internal static class SampleClassBenchmarks
   public static SampleClass Item1_2 { get; } = new() { Number = 1, NullableDateTime = DateTimeValue, Text = "Item1", };
   public static SampleClass Item2 { get; } = new() { Number = 1, NullableDateTime = DateTimeValue, Text = "Item2", };
 
-  public static SampleClass[] AllItems = { Item1_1, Item1_2, Item2, };
+  public static SampleClass[] AllItems = [Item1_1, Item1_2, Item2];
 
   public static SampleClassComparer Comparer { get; } = new();
 

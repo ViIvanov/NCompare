@@ -6,7 +6,7 @@ namespace NCompare;
 using static Expression;
 using static ReplaceVisitor;
 
-internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
+internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, string? expressionText, string? filePath, int lineNumber) : IComparerBuilderExpression
 {
   private static readonly MethodInfo EqualityComparerEqualsMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.Equals));
   private static readonly MethodInfo EqualityComparerGetHashCodeMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.GetHashCode));
@@ -23,27 +23,20 @@ internal sealed class ComparerBuilderExpression<T> : IComparerBuilderExpression
   private static readonly MethodInfo InterceptGetHashCodeMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptGetHashCode));
   private static readonly MethodInfo InterceptCompareMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptCompare));
 
-  public ComparerBuilderExpression(LambdaExpression expression, string? expressionText, string? filePath, int lineNumber) {
-    Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-    ExpressionText = expressionText ?? String.Empty;
-    FilePath = filePath ?? String.Empty;
-    LineNumber = lineNumber;
-  }
-
   public ComparerBuilderExpression(LambdaExpression expression, IEqualityComparer<T>? equalityComparer, IComparer<T>? comparer,
     string? expressionText, string? filePath, int lineNumber) : this(expression, expressionText, filePath, lineNumber) {
     EqualityComparer = equalityComparer;
     Comparer = comparer;
   }
 
-  public LambdaExpression Expression { get; }
+  public LambdaExpression Expression { get; } = expression ?? throw new ArgumentNullException(nameof(expression));
 
   public IEqualityComparer<T>? EqualityComparer { get; }
   public IComparer<T>? Comparer { get; }
 
-  public string ExpressionText { get; }
-  public string FilePath { get; }
-  public int LineNumber { get; }
+  public string ExpressionText { get; } = expressionText ?? String.Empty;
+  public string FilePath { get; } = filePath ?? String.Empty;
+  public int LineNumber { get; } = lineNumber;
 
   private static MethodInfo GetComparerMethodInfo(Type comparerType, string methodName)
     => comparerType?.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly) ?? throw new ArgumentNullException(nameof(comparerType));

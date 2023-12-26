@@ -210,20 +210,16 @@ file class TestValue
   public override string ToString() => $"{nameof(Number)} = {Number}, {nameof(DateTime)} = {DateTime:yyyy-MM-dd}";
 }
 
-file sealed class OtherValue
+file sealed class OtherValue(string? text = default)
 {
-  public OtherValue(string? text = default) => Text = text ?? String.Empty;
-
-  public string Text { get; }
+  public string Text { get; } = text ?? String.Empty;
 
   public override string ToString() => $"\"{Text}\"";
 }
 
-file sealed class DerivedTestValue : TestValue
+file sealed class DerivedTestValue(int number = default, DateTime? dateTime = default, OtherValue? other = default) : TestValue(number, dateTime)
 {
-  public DerivedTestValue(int number = default, DateTime? dateTime = default, OtherValue? other = default) : base(number, dateTime) => Other = other;
-
-  public OtherValue? Other { get; }
+  public OtherValue? Other { get; } = other;
 
   public override string ToString() => $"{base.ToString()}, {nameof(Other)} = {Other}";
 }

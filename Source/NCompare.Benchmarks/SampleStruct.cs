@@ -4,17 +4,11 @@ using Nito.Comparers;
 
 namespace NCompare.Benchmarks;
 
-public readonly struct SampleStruct : IEquatable<SampleStruct>, IComparable<SampleStruct>
+public readonly struct SampleStruct(int number, DateTime? dateTime, string? text) : IEquatable<SampleStruct>, IComparable<SampleStruct>
 {
-  public SampleStruct(int number, DateTime? dateTime, string? text) {
-    Number = number;
-    NullableDateTime = dateTime;
-    Text = text;
-  }
-
-  public int Number { get; }
-  public DateTime? NullableDateTime { get; }
-  public string? Text { get; }
+  public int Number { get; } = number;
+  public DateTime? NullableDateTime { get; } = dateTime;
+  public string? Text { get; } = text;
 
   public bool Equals(SampleStruct other)
     => other.Number == Number && other.NullableDateTime == NullableDateTime && other.Text == Text;
@@ -77,7 +71,7 @@ internal static class SampleStructBenchmarks
   public static SampleStruct Item1_2 { get; } = new(number: 1, dateTime: DateTimeValue, text: "Item1");
   public static SampleStruct Item2 { get; } = new(number: 1, dateTime: DateTimeValue, text: "Item2");
 
-  public static SampleStruct[] AllItems = { Item1_1, Item1_2, Item2, };
+  public static SampleStruct[] AllItems = [Item1_1, Item1_2, Item2];
 
   public static SampleStructComparer Comparer { get; } = new();
 
