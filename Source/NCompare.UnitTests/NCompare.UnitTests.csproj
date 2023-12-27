@@ -11,7 +11,7 @@
     <AnalysisLevel>Preview-All</AnalysisLevel>
     <ImplicitUsings>Enable</ImplicitUsings>
     <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>C:\Develop\Projects\GitHub\NCompare\Source\StrongName.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(ProjectDir)..\StrongName.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
