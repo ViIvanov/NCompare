@@ -47,6 +47,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="NCompare.UnitTests" Key="00240000048000009400000006020000002400005253413100040000010001002536001f942519da4e5c4be913f605130dde1d29fcfed7e25084dd13a7ef4730450fc90e7aed8aa313f6d266ddcf7df87683d3072c7b59ee11bdbfdc4a95f45d111b63831292e36ae7b83133292eba5384eeb4e0a9bde48944c341c1dbe859343ef23f3f9f64c376380ed0586f178a0bd6576d3966c1d81dfe4a1820b9d493d9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath />

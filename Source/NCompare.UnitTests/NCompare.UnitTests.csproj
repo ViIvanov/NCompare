@@ -10,6 +10,8 @@
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>Preview-All</AnalysisLevel>
     <ImplicitUsings>Enable</ImplicitUsings>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>C:\Develop\Projects\GitHub\NCompare\Source\StrongName.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NCompare\NCompare.csproj" />
+    <ProjectReference Include="..\NCompare\NCompare.csproj">
+      <Aliases>NCompare</Aliases>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
