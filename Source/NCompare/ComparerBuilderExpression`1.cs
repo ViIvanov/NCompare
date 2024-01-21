@@ -14,10 +14,14 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
 
   private static readonly Expression DefaultEqualityComparerExpression = Constant(EqualityComparer<T>.Default);
   private static readonly Expression DefaultComparerExpression = Constant(Comparer<T>.Default);
+  private static readonly bool IsNullableValueType = Nullable.GetUnderlyingType(typeof(T)) is not null;
+  private static readonly MethodInfo CompareToMethod = typeof(IComparable<T>).GetMethod(nameof(IComparable<T>.CompareTo), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(T)], modifiers: null);
 
   private static readonly MethodInfo DefaultEqualityComparerEqualsMethod = new Func<T, T, bool>(EqualityComparer<T>.Default.Equals).Method;
   private static readonly MethodInfo DefaultEqualityComparerGetHashCodeMethod = new Func<T, int>(EqualityComparer<T>.Default.GetHashCode).Method;
-  private static readonly MethodInfo DefaultComparerCompareMethod = new Func<T, T, int>(Comparer<T>.Default.Compare).Method;
+  //private static readonly MethodInfo DefaultComparerCompareMethod = new Func<T, T, int>(Comparer<T>.Default.Compare).Method;
+  private static readonly MethodInfo DefaultComparerCompareMethod = new Comparison<T>(Comparer<T>.Default.Compare).Method;
+  //private static readonly MethodInfo DefaultComparerCompareMethod = typeof(Comparer<T>).GetMethod("Compare", BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(T), typeof(T)], modifiers: null);
 
   private static readonly MethodInfo InterceptEqualsMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptEquals));
   private static readonly MethodInfo InterceptGetHashCodeMethod = GetInterceptMethodInfo(nameof(IComparerBuilderInterception.InterceptGetHashCode));
@@ -56,10 +60,15 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
       ? Call(Constant(comparer), EqualityComparerGetHashCodeMethod, obj)
       : Call(DefaultEqualityComparerExpression, DefaultEqualityComparerGetHashCodeMethod, obj);
 
+  //private static readonly ConstantExpression Zero = Constant(0);
+  //private static readonly ConstantExpression One = Constant(1);
+  //private static readonly ConstantExpression MinusOne = Constant(-1);
+
   private static Expression MakeCompare(Expression x, Expression y, IComparer<T>? comparer)
     => comparer is not null
       ? Call(Constant(comparer), ComparerCompareMethod, x, y)
-      : Call(DefaultComparerExpression, DefaultComparerCompareMethod, x, y);
+      //: Condition(LessThan(x, y), MinusOne, Condition(Equal(x, y), Zero, One));
+      : (IsNullableValueType ? Call(DefaultComparerExpression, DefaultComparerCompareMethod, x, y) : Call(x, CompareToMethod, y));
 
   private Expression ApplyInterception(IComparerBuilderContext context, MethodInfo method, Expression value, params Expression[] args) {
     if(context is null) {
