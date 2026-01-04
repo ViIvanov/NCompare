@@ -192,6 +192,10 @@ dotnet_diagnostic.RS0030.severity = error
 # CA2007: Consider calling ConfigureAwait on the awaited task
 dotnet_diagnostic.CA2007.severity = warning
 
+# CA1515: Consider making public types internal: Suppress for benchmarks and unit tests
+[Source/NCompare.{Benchmarks,UnitTests}{,/**}/*.cs]
+dotnet_diagnostic.CA1515.severity = none
+
 [*.cs]
 
 #### C# Coding Conventions ####
