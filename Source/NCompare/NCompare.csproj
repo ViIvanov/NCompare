@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0; net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0; net462</TargetFrameworks>
     <LangVersion>Preview</LangVersion>
     <Nullable>Enable</Nullable>
     <WarningLevel>9999</WarningLevel>
@@ -31,7 +31,7 @@
     <RepositoryUrl>https://github.com/ViIvanov/NCompare.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Copyright>Copyright © 2010 — 2023 @ViIvanov</Copyright>
+    <Copyright>Copyright © 2010 — 2026 @ViIvanov</Copyright>
     <Description>NCompare library provides an ability to easy build comparators (EqualityComparer&lt;&gt; / Comparer&lt;&gt;) for .NET / C# types. Based on Linq expressions for describe an object structure.</Description>
     <PackageReadmeFile>Readme.nuget.md</PackageReadmeFile>
     <Authors>ViIvanov</Authors>
@@ -43,7 +43,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Condition=" '$(TargetFramework)' == 'net461' " Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Condition=" '$(TargetFramework)' == 'net462' " Include="System.ValueTuple" Version="4.6.1" />
   </ItemGroup>
 
   <ItemGroup>
