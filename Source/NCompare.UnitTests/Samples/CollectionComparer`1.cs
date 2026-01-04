@@ -36,7 +36,7 @@ internal sealed class CollectionComparer<T> : IEqualityComparer<IReadOnlyCollect
         hashCode.Add(item, EqualityComparer);
       }//for
     }//if
-    return hashCode.GetHashCode();
+    return hashCode.ToHashCode();
   }
 
   public int Compare(IReadOnlyCollection<T>? x, IReadOnlyCollection<T>? y) {
