@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace NCompare.UnitTests;
+﻿namespace NCompare.UnitTests;
 
 internal static class TestCompare
 {
