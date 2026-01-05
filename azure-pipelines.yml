@@ -28,14 +28,14 @@ pool:
   vmImage: $(image)
 
 variables:
-  solution: '**/*.sln'
+  solution: '**/*.slnx'
 
 steps:
 
 - task: UseDotNet@2
   displayName: 'Install .NET'
   inputs:
-    version: '8.x'
+    version: '10.x'
     performMultiLevelLookup: true
 
 - task: DotNetCoreCLI@2

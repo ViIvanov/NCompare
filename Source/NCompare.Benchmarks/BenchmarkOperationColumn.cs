@@ -17,8 +17,8 @@ internal sealed class BenchmarkOperationColumn : BenchmarkColumn
 
   private BenchmarkOperationColumn(ColumnKind kind, IColumn source) : base(source) => Kind = kind;
 
-  public static BenchmarkOperationColumn TypeKind { get; } = new BenchmarkOperationColumn(ColumnKind.TypeKind, TargetMethodColumn.Type);
-  public static BenchmarkOperationColumn Operation { get; } = new BenchmarkOperationColumn(ColumnKind.Operation, TargetMethodColumn.Type);
+  public static BenchmarkOperationColumn TypeKind { get; } = new(ColumnKind.TypeKind, TargetMethodColumn.Type);
+  public static BenchmarkOperationColumn Operation { get; } = new(ColumnKind.Operation, TargetMethodColumn.Type);
 
   private ColumnKind Kind { get; }
 
@@ -44,12 +44,12 @@ internal sealed class BenchmarkOperationColumn : BenchmarkColumn
         null => "Unknown",
       },
       ColumnKind.Operation => (IsEqualityComparerKind(categories), GetBenchmarkKind(categories)) switch {
-        (true, BenchmarkCategories.Equal) => "Equals(equal)",
-        (true, BenchmarkCategories.NotEqual) => "Equals(not-equal)",
-        (false, BenchmarkCategories.Equal) => "CompareTo(equal)",
-        (false, BenchmarkCategories.NotEqual) => "CompareTo(not-equal)",
-        (_, BenchmarkCategories.GetHashCode) => "GetHashCode",
-        (_, BenchmarkCategories.Sort) => "Sort",
+        (true, BenchmarkCategories.Equal) => $"{nameof(IEquatable<>.Equals)}(equal)",
+        (true, BenchmarkCategories.NotEqual) => $"{nameof(IEquatable<>.Equals)}(not-equal)",
+        (false, BenchmarkCategories.Equal) => $"{nameof(IComparable<>.CompareTo)}(equal)",
+        (false, BenchmarkCategories.NotEqual) => $"{nameof(IComparable<>.CompareTo)}(not-equal)",
+        (_, BenchmarkCategories.GetHashCode) => nameof(BenchmarkCategories.GetHashCode),
+        (_, BenchmarkCategories.Sort) => nameof(BenchmarkCategories.Sort),
         (var kind, var unknown) => $"Unknown: {unknown}({kind})",
       },
       var unknown => $"Unknown: {unknown}",

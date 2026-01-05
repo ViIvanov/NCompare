@@ -13,11 +13,11 @@ public class CompareToBenchmarks
   private readonly int Value2 = 377;
 
   private static readonly MethodInfo CompareToMethodByMethodHandle = new Func<int, int>(default(int).CompareTo).Method;
-  private static readonly MethodInfo CompareToMethodByMethodName = typeof(IComparable<int>).GetMethod(nameof(IComparable<int>.CompareTo), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(int)], modifiers: null)!;
+  private static readonly MethodInfo CompareToMethodByMethodName = typeof(IComparable<int>).GetMethod(nameof(IComparable<>.CompareTo), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(int)], modifiers: null)!;
 
   private static readonly Expression DefaultComparerExpression = Constant(Comparer<int>.Default);
   private static readonly MethodInfo DefaultComparerAbstractCompareMethod = new Comparison<int>(Comparer<int>.Default.Compare).Method;
-  private static readonly MethodInfo DefaultComparerDirectCompareMethod = typeof(Comparer<int>).GetMethod(nameof(Comparer<int>.Compare), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(int), typeof(int)], modifiers: null)!;
+  private static readonly MethodInfo DefaultComparerDirectCompareMethod = typeof(Comparer<int>).GetMethod(nameof(Comparer<>.Compare), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(int), typeof(int)], modifiers: null)!;
 
   private static readonly Expression CustomComparerExpression = Constant(CustomInt32Comparer.Instance);
   private static readonly MethodInfo CustomComparerCompareMethod = new Comparison<int>(CustomInt32Comparer.Instance.Compare).Method;

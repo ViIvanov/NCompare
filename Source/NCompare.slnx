@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Build/">
+    <File Path="../azure-pipelines.yml" />
+  </Folder>
+  <Folder Name="/Root Items/">
+    <File Path="../.editorconfig" />
+    <File Path="../.gitattributes" />
+    <File Path="../.gitignore" />
+    <File Path="../LICENSE" />
+    <File Path="../README.md" />
+    <File Path="Readme.nuget.md" />
+  </Folder>
+  <Project Path="NCompare/NCompare.csproj" />
+  <Project Path="NCompare.Benchmarks/NCompare.Benchmarks.csproj" />
+  <Project Path="NCompare.UnitTests/NCompare.UnitTests.csproj" />
+</Solution>

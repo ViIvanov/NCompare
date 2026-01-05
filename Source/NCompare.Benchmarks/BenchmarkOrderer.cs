@@ -12,7 +12,9 @@ using static BenchmarkOperationColumn;
 
 internal sealed class BenchmarkOrderer : IOrderer
 {
-  public static BenchmarkOrderer Default { get; } = new BenchmarkOrderer();
+  private BenchmarkOrderer() { }
+
+  public static BenchmarkOrderer Default { get; } = new();
 
   public bool SeparateLogicalGroups => true;
 

@@ -4,7 +4,7 @@
 public abstract class Benchmarks<T>
 #pragma warning restore CA1724 // Type names should not match namespaces
 {
-  protected Benchmarks(TestComparators<T> comparators, params T[] values) {
+  protected Benchmarks(TestComparators<T> comparators, params IReadOnlyList<T> values) {
     Comparators = comparators ?? throw new ArgumentNullException(nameof(comparators));
     Items = values ?? throw new ArgumentNullException(nameof(values));
 
