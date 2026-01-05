@@ -198,6 +198,12 @@ public sealed partial class General
       previous = item;
     }//for
   }
+
+  [TestMethod]
+  public void ThrowOnUncomparableType() {
+    var builder = new ComparerBuilder<TestValue>().Add(value => new object());
+    _ = Assert.ThrowsExactly<ArgumentException>(builder.CreateComparer);
+  }
 }
 
 file class TestValue
