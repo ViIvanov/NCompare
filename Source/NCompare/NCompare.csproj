@@ -15,8 +15,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionPrefix>1.0.2</VersionPrefix>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -36,6 +36,10 @@
     <PackageReadmeFile>Readme.nuget.md</PackageReadmeFile>
     <Authors>ViIvanov</Authors>
     <PackageIcon>NCompare.jpg</PackageIcon>
+    <PackageReleaseNotes>* Minimum supported .NET Framework version changed to 4.6.2 (because 4.6.2 is out of support)
+* Project upgraded to .NET 10 and C# 14
+* Referenced packages updated to the latest versions
+* Improvements in the generation of `CompareTo(…)` for the case when the custom comparer is not provided</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

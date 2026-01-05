@@ -1,6 +1,7 @@
 trigger:
 - main
 - feature/*
+- release/*
 
 strategy:
   matrix:
