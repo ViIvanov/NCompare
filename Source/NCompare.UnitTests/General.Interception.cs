@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace NCompare.UnitTests;
 
 partial class General

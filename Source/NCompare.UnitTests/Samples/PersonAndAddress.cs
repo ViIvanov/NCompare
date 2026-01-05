@@ -1,8 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace NCompare.UnitTests.Samples;
 
 using static TestCompare;
@@ -34,7 +32,7 @@ public sealed class PersonAndAddress
     Assert.AreEqual(expected: 0, compare12);
 
     var compare23 = PersonComparer.Compare(person2, person3);
-    Assert.IsTrue(compare23 < 0);
+    Assert.IsLessThan(0, compare23);
   }
 
   [TestMethod]

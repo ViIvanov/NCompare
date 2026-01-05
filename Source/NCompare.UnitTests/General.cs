@@ -1,7 +1,5 @@
 // Ignore Spelling: Nullable
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace NCompare.UnitTests;
 
 using static TestCompare;
@@ -10,7 +8,7 @@ using static TestCompare;
 public sealed partial class General
 {
   private static void AssertException<TException>(Action action, string message) where TException : Exception {
-    var ex = Assert.ThrowsException<TException>(action);
+    var ex = Assert.Throws<TException>(action);
     Assert.IsNotNull(ex);
     Assert.AreEqual(expected: message, ex.Message);
   }
@@ -111,8 +109,8 @@ public sealed partial class General
     Assert.AreEqual(expected: 0, compare, $"{x.Number} == {y.Number}");
 
     var z = new TestValue(2);
-    Assert.IsTrue(equality.Compare(x, z) < 0, $"{x.Number} < {z.Number}");
-    Assert.IsTrue(equality.Compare(z, y) > 0, $"{z.Number} < {y.Number}");
+    Assert.IsLessThan(0, equality.Compare(x, z), $"{x.Number} < {z.Number}");
+    Assert.IsGreaterThan(0, equality.Compare(z, y), $"{z.Number} < {y.Number}");
   }
 
   [TestMethod]
