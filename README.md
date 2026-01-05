@@ -24,7 +24,7 @@ You can find reasons for making `ComparerBuilder<>` in this old post on [RSDN](h
 In the future, I plan to expand the library with comparators for various collections and other scenarios.
 This will allow you to quickly and conveniently create comparators for complex and interconnected objects.
 
-Now `ComparerBuilder<T>` is written on C# 11.0. it builds for .NET Framework 4.6.1 and .NET Standard 2.0 so could
+Now `ComparerBuilder<T>` is written on C# 14.0. it builds for .NET Framework 4.6.2 and .NET Standard 2.0 so could
 be used in many projects.
 
 You can compose a comparer builder from other comparer builders.
@@ -34,7 +34,7 @@ print to a `Debug` when `IEqualityComparer<>::Equals(…, …)` returns `false` or `
 
 ## Examples
 
-Let's imagine that we need to add comparison logic to the Person type below:
+Let's imagine that we need to add comparison logic to the `Person` type below:
 ```cs
 public sealed class Person
 {
