@@ -26,7 +26,9 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   public ComparerBuilder(IComparerBuilderInterception? interception) : this(expressions: [], interception) { }
 
   private ComparerBuilder(List<IComparerBuilderExpression> expressions, IComparerBuilderInterception? interception = null) {
-    Expressions = expressions ?? throw new ArgumentNullException(nameof(expressions));
+    ArgumentNullException.ThrowIfNull(expressions);
+
+    Expressions = expressions;
     Interception = interception;
 
     EqualityComparer = new(this);
@@ -48,9 +50,10 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   private LazyComparer Comparer { get; }
 
   private ComparerBuilder<T> Add(IComparerBuilderExpression expression) {
+    ArgumentNullException.ThrowIfNull(expression);
     ThrowIfCreated();
 
-    Expressions.Add(expression ?? throw new ArgumentNullException(nameof(expression)));
+    Expressions.Add(expression);
     return this;
   }
 
@@ -84,13 +87,16 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
     => Add(expression, EqualityComparer, Comparer, expressionText, filePath, lineNumber);
 
   public ComparerBuilder<T> Add<TValue>(Expression<Func<T, TValue?>> expression, ComparerBuilder<TValue> builder,
-    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0)
-    => Add(expression, builder?.EqualityComparer ?? throw new ArgumentNullException(nameof(builder)), builder?.Comparer, expressionText, filePath, lineNumber);
+    [CallerArgumentExpression(nameof(expression))] string? expressionText = null, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = 0) {
+    ArgumentNullException.ThrowIfNull(builder);
+    return Add(expression, builder.EqualityComparer, builder.Comparer, expressionText, filePath, lineNumber);
+  }
 
   public ComparerBuilder<T> Add(ComparerBuilder<T> other) {
+    ArgumentNullException.ThrowIfNull(other);
     ThrowIfCreated();
 
-    Expressions.AddRange(other?.Expressions ?? throw new ArgumentNullException(nameof(other)));
+    Expressions.AddRange(other.Expressions);
     return this;
   }
 
@@ -187,7 +193,9 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   private sealed class LazyEqualityComparer : EqualityComparer<T>
   {
     public LazyEqualityComparer(ComparerBuilder<T> builder) {
-      Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+      ArgumentNullException.ThrowIfNull(builder);
+
+      Builder = builder;
       LazyValue = new(Builder.BuildEqualityComparer);
     }
 
@@ -209,7 +217,9 @@ public sealed class ComparerBuilder<T> : IComparerBuilderContext
   private sealed class LazyComparer : Comparer<T>
   {
     public LazyComparer(ComparerBuilder<T> builder) {
-      Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+      ArgumentNullException.ThrowIfNull(builder);
+
+      Builder = builder;
       LazyValue = new(Builder.BuildComparer);
     }
 

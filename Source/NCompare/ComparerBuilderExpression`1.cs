@@ -40,8 +40,10 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
   public string FilePath { get; } = filePath ?? String.Empty;
   public int LineNumber { get; } = lineNumber;
 
-  private static MethodInfo GetComparerMethodInfo(Type comparerType, string methodName)
-    => comparerType?.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly) ?? throw new ArgumentNullException(nameof(comparerType));
+  private static MethodInfo GetComparerMethodInfo(Type comparerType, string methodName) {
+    ArgumentNullException.ThrowIfNull(comparerType);
+    return comparerType.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+  }
 
   private static MethodInfo GetInterceptMethodInfo(string methodName)
     => typeof(IComparerBuilderInterception).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).MakeGenericMethod(typeof(T));
@@ -64,16 +66,13 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
       : (IsNullableValueType ? Call(DefaultComparerExpression, DefaultComparerCompareMethod, x, y) : Call(x, CompareToMethod, y));
 
   private Expression ApplyInterception(IComparerBuilderContext context, MethodInfo method, Expression value, params Expression[] args) {
-    if(context is null) {
-      throw new ArgumentNullException(nameof(context));
-    } else if(context.Interception is null) {
+    ArgumentNullException.ThrowIfNull(context);
+    ArgumentNullException.ThrowIfNull(method);
+    ArgumentNullException.ThrowIfNull(value);
+    ArgumentNullException.ThrowIfNull(args);
+
+    if(context.Interception is null) {
       throw new ArgumentException("Interception should be specified.", nameof(context));
-    } else if(method is null) {
-      throw new ArgumentNullException(nameof(method));
-    } else if(value is null) {
-      throw new ArgumentNullException(nameof(value));
-    } else if(args is null) {
-      throw new ArgumentNullException(nameof(args));
     }//if
 
     // return {interception}.{methodName}<{valueType}>({expression}, {x}[, {y}], args);
@@ -97,9 +96,7 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
   #region IComparerBuilderExpression Members
 
   public Expression AsEquals(IComparerBuilderContext context, ParameterExpression x, ParameterExpression y) {
-    if(context is null) {
-      throw new ArgumentNullException(nameof(context));
-    }//if
+    ArgumentNullException.ThrowIfNull(context);
 
     var first = ReplaceParameters(Expression, x);
     var second = ReplaceParameters(Expression, y);
@@ -108,9 +105,7 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
   }
 
   public Expression AsGetHashCode(IComparerBuilderContext context, ParameterExpression obj) {
-    if(context is null) {
-      throw new ArgumentNullException(nameof(context));
-    }//if
+    ArgumentNullException.ThrowIfNull(context);
 
     var arg = ReplaceParameters(Expression, obj);
     var value = MakeGetHashCode(arg, EqualityComparer);
@@ -118,9 +113,7 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
   }
 
   public Expression AsCompare(IComparerBuilderContext context, ParameterExpression x, ParameterExpression y) {
-    if(context is null) {
-      throw new ArgumentNullException(nameof(context));
-    }//if
+    ArgumentNullException.ThrowIfNull(context);
 
     var first = ReplaceParameters(Expression, x);
     var second = ReplaceParameters(Expression, y);

@@ -8,14 +8,13 @@ internal sealed class ReplaceVisitor : ExpressionVisitor
 
   private Dictionary<Expression, Expression> Replaces { get; }
 
-  public static Expression ReplaceParameters(LambdaExpression expression, params Expression[] parameters) {
-    if(expression is null) {
-      throw new ArgumentNullException(nameof(expression));
-    } else if(parameters is null) {
-      throw new ArgumentNullException(nameof(parameters));
-    } else if(parameters.Length is 0) {
+  public static Expression ReplaceParameters(LambdaExpression expression, params IReadOnlyList<Expression> parameters) {
+    ArgumentNullException.ThrowIfNull(expression);
+    ArgumentNullException.ThrowIfNull(parameters);
+
+    if(parameters is []) {
       throw new ArgumentException("Should not be empty array.", nameof(parameters));
-    } else if(expression.Parameters.Count != parameters.Length) {
+    } else if(expression.Parameters.Count != parameters.Count) {
       throw new ArgumentException("Number of parameters in expression and in the array not equal.", nameof(expression));
     }//if
 

@@ -5,8 +5,11 @@ namespace NCompare;
 public sealed class ComparerBuilderInterceptionArgs<T>
 {
   internal ComparerBuilderInterceptionArgs(LambdaExpression expression, Type comparedType, IEqualityComparer<T>? equalityComparer, IComparer<T>? comparer, string expressionText, string filePath, int lineNumber) {
-    Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-    ComparedType = comparedType ?? throw new ArgumentNullException(nameof(comparedType));
+    ArgumentNullException.ThrowIfNull(expression);
+    ArgumentNullException.ThrowIfNull(comparedType);
+
+    Expression = expression;
+    ComparedType = comparedType;
     EqualityComparer = equalityComparer;
     Comparer = comparer;
     ExpressionText = expressionText ?? String.Empty;
