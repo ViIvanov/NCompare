@@ -4,11 +4,9 @@ using BenchmarkDotNet.Running;
 
 namespace NCompare.Benchmarks;
 
-internal abstract class BenchmarkColumn : IColumn
+internal abstract class BenchmarkColumn(IColumn source) : IColumn
 {
-  protected BenchmarkColumn(IColumn source) => SourceColumn = source ?? throw new ArgumentNullException(nameof(source));
-
-  protected IColumn SourceColumn { get; }
+  protected IColumn SourceColumn { get; } = source ?? throw new ArgumentNullException(nameof(source));
 
   public virtual string Id => GetType().Name;
 

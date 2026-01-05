@@ -8,14 +8,14 @@ using static ReplaceVisitor;
 
 internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, string? expressionText, string? filePath, int lineNumber) : IComparerBuilderExpression
 {
-  private static readonly MethodInfo EqualityComparerEqualsMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.Equals));
-  private static readonly MethodInfo EqualityComparerGetHashCodeMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<T>.GetHashCode));
-  private static readonly MethodInfo ComparerCompareMethod = GetComparerMethodInfo(typeof(IComparer<T>), nameof(IComparer<T>.Compare));
+  private static readonly MethodInfo EqualityComparerEqualsMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<>.Equals));
+  private static readonly MethodInfo EqualityComparerGetHashCodeMethod = GetComparerMethodInfo(typeof(IEqualityComparer<T>), nameof(IEqualityComparer<>.GetHashCode));
+  private static readonly MethodInfo ComparerCompareMethod = GetComparerMethodInfo(typeof(IComparer<T>), nameof(IComparer<>.Compare));
 
   private static readonly Expression DefaultEqualityComparerExpression = Constant(EqualityComparer<T>.Default);
   private static readonly Expression DefaultComparerExpression = Constant(Comparer<T>.Default);
   private static readonly bool IsNullableValueType = Nullable.GetUnderlyingType(typeof(T)) is not null;
-  private static readonly MethodInfo CompareToMethod = typeof(IComparable<T>).GetMethod(nameof(IComparable<T>.CompareTo), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(T)], modifiers: null);
+  private static readonly MethodInfo CompareToMethod = typeof(IComparable<T>).GetMethod(nameof(IComparable<>.CompareTo), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly, binder: null, types: [typeof(T)], modifiers: null);
 
   private static readonly MethodInfo DefaultEqualityComparerEqualsMethod = new Func<T, T, bool>(EqualityComparer<T>.Default.Equals).Method;
   private static readonly MethodInfo DefaultEqualityComparerGetHashCodeMethod = new Func<T, int>(EqualityComparer<T>.Default.GetHashCode).Method;
@@ -86,11 +86,8 @@ internal sealed class ComparerBuilderExpression<T>(LambdaExpression expression, 
     var interceptionArgs = new ComparerBuilderInterceptionArgs<T>(Expression, context.ComparedType, EqualityComparer, Comparer, ExpressionText, FilePath, LineNumber);
     var interceptionArgsExpression = Constant(interceptionArgs);
 
-    var arguments = new List<Expression>(args.Length + 2) { value, variables, interceptionArgsExpression, };
-    var call = Call(instance, method, arguments);
-    var expressions = new List<Expression>(args.Length + 1) { assigns, call, };
-
-    return Block(value.Type, variables, expressions);
+    var call = Call(instance, method, [value, .. variables, interceptionArgsExpression]);
+    return Block(value.Type, variables, [.. assigns, call]);
   }
 
 #pragma warning restore CA1859 // Use concrete types when possible for improved performance

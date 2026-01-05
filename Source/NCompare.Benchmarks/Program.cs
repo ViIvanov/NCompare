@@ -7,18 +7,18 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
-
 using NCompare.Benchmarks;
 
-if(args is null || args.Length == 0) {
-  args = ["--filter", "*"];
+if(args is null || args.Length is 0) {
+  args = ["--filter", "*", "--runtimes", "net462", "net472", "net80", "net90", "net10.0"];
 }//if
 
 var config = ManualConfig.CreateEmpty()
-  .AddJob(Configure(Job.Default.WithRuntime(ClrRuntime.Net461)))
+  .AddJob(Configure(Job.Default.WithRuntime(ClrRuntime.Net462)))
   .AddJob(Configure(Job.Default.WithRuntime(ClrRuntime.Net472)))
-  .AddJob(Configure(Job.Default.WithRuntime(CoreRuntime.Core60)))
   .AddJob(Configure(Job.Default.WithRuntime(CoreRuntime.Core80)))
+  .AddJob(Configure(Job.Default.WithRuntime(CoreRuntime.Core90)))
+  .AddJob(Configure(Job.Default.WithRuntime(CoreRuntime.Core10_0)))
   .AddColumn(JobCharacteristicColumn.AllColumns)
   .AddColumn(BenchmarkOperationColumn.TypeKind, BenchmarkOperationColumn.Operation, BenchmarkComparerColumn.Default)
   .AddColumn(StatisticColumn.Mean, StatisticColumn.StdErr, StatisticColumn.StdDev)
@@ -36,8 +36,7 @@ var config = ManualConfig.CreateEmpty()
 BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
 
 Console.WriteLine();
-Console.WriteLine("Benchmark finished. Press <Enter> for exit.");
-Console.ReadLine();
+Console.WriteLine("Benchmark finished.");
 
 static Job Configure(Job job)
 #if DEBUG

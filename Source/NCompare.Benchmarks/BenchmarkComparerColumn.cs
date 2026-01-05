@@ -8,7 +8,7 @@ internal sealed class BenchmarkComparerColumn : BenchmarkColumn
 {
   private BenchmarkComparerColumn() : base(TargetMethodColumn.Method) { }
 
-  public static IColumn Default { get; } = new BenchmarkComparerColumn();
+  public static BenchmarkComparerColumn Default { get; } = new();
 
   public override string ColumnName => "Comparer";
   public override string Legend => "The comparer used to compare objects";

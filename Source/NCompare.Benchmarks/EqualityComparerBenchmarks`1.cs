@@ -4,15 +4,10 @@ using BenchmarkDotNet.Attributes;
 
 namespace NCompare.Benchmarks;
 
-public abstract class EqualityComparerBenchmarks<T> : Benchmarks<T> where T : IEquatable<T>
-{
-  protected EqualityComparerBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
-}
+public abstract class EqualityComparerBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : Benchmarks<T>(comparators, values) where T : IEquatable<T>;
 
-public abstract class EqualityComparerEqualBenchmarks<T> : EqualityComparerBenchmarks<T> where T : IEquatable<T>
+public abstract class EqualityComparerEqualBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : EqualityComparerBenchmarks<T>(comparators, values) where T : IEquatable<T>
 {
-  protected EqualityComparerEqualBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
-
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IEquatable)]
   [BenchmarkCategory(BenchmarkCategories.EqualityComparer, BenchmarkCategories.Equal, BenchmarkDescriptions.IEquatable)]
   public bool Equality_Override_Equal() => Item1_1.Equals(Item1_2);
@@ -30,10 +25,8 @@ public abstract class EqualityComparerEqualBenchmarks<T> : EqualityComparerBench
   public bool Equality_Nito_Equal() => Comparators.NitoFullComparer.Equals(Item1_1, Item1_2);
 }
 
-public abstract class EqualityComparerNotEqualBenchmarks<T> : EqualityComparerBenchmarks<T> where T : IEquatable<T>
+public abstract class EqualityComparerNotEqualBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : EqualityComparerBenchmarks<T>(comparators, values) where T : IEquatable<T>
 {
-  protected EqualityComparerNotEqualBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
-
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IEquatable)]
   [BenchmarkCategory(BenchmarkCategories.EqualityComparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.IEquatable)]
   public bool Equality_Override_NotEqual() => Item1_1.Equals(Item2);
@@ -51,10 +44,8 @@ public abstract class EqualityComparerNotEqualBenchmarks<T> : EqualityComparerBe
   public bool Equality_Nito_NotEqual() => Comparators.NitoFullComparer.Equals(Item1_1, Item2);
 }
 
-public abstract class EqualityComparerGetHashCodeBenchmarks<T> : EqualityComparerBenchmarks<T> where T : IEquatable<T>
+public abstract class EqualityComparerGetHashCodeBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : EqualityComparerBenchmarks<T>(comparators, values) where T : IEquatable<T>
 {
-  protected EqualityComparerGetHashCodeBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
-
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IEquatable)]
   [BenchmarkCategory(BenchmarkCategories.EqualityComparer, BenchmarkCategories.GetHashCode, BenchmarkDescriptions.IEquatable)]
   public int Equality_Override_GetHashCode() => Item1_1.GetHashCode();

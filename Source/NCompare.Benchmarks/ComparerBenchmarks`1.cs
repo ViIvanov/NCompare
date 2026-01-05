@@ -4,15 +4,10 @@ using BenchmarkDotNet.Attributes;
 
 namespace NCompare.Benchmarks;
 
-public abstract class ComparerBenchmarks<T> : Benchmarks<T> where T : IComparable<T>
-{
-  protected ComparerBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
-}
+public abstract class ComparerBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : Benchmarks<T>(comparators, values) where T : IComparable<T>;
 
-public abstract class ComparerEqualBenchmarks<T> : ComparerBenchmarks<T> where T : IComparable<T>
+public abstract class ComparerEqualBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : ComparerBenchmarks<T>(comparators, values) where T : IComparable<T>
 {
-  protected ComparerEqualBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
-
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.Equal, BenchmarkDescriptions.IComparable)]
   public int Compare_Override_Equal() => Item1_1.CompareTo(Item1_2);
@@ -30,10 +25,8 @@ public abstract class ComparerEqualBenchmarks<T> : ComparerBenchmarks<T> where T
   public int Compare_Nito_Equal() => Comparators.NitoFullComparer.Compare(Item1_1, Item1_2);
 }
 
-public abstract class ComparerNotEqualBenchmarks<T> : ComparerBenchmarks<T> where T : IComparable<T>
+public abstract class ComparerNotEqualBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : ComparerBenchmarks<T>(comparators, values) where T : IComparable<T>
 {
-  protected ComparerNotEqualBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, values) { }
-
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
   [BenchmarkCategory(BenchmarkCategories.Comparer, BenchmarkCategories.NotEqual, BenchmarkDescriptions.IComparable)]
   public int Compare_Override_NotEqual() => Item1_1.CompareTo(Item2);
@@ -51,28 +44,32 @@ public abstract class ComparerNotEqualBenchmarks<T> : ComparerBenchmarks<T> wher
   public int Compare_Nito_NotEqual() => Comparators.NitoFullComparer.Compare(Item1_1, Item2);
 }
 
-public abstract class ComparerSortBenchmarks<T> : ComparerBenchmarks<T> where T : IComparable<T>
+public abstract class ComparerSortBenchmarks<T>(TestComparators<T> comparators, params IReadOnlyList<T> values) : ComparerBenchmarks<T>(comparators, DuplicateAndShuffleValues(values)) where T : IComparable<T>
 {
-  protected ComparerSortBenchmarks(TestComparators<T> comparators, params T[] values) : base(comparators, DuplicateAndShuffleValues(values)) { }
-
-  private static T[] DuplicateAndShuffleValues(T[] values) {
+  private static T[] DuplicateAndShuffleValues(IReadOnlyCollection<T> values) {
     const int Factor = 10;
-    var array = Enumerable.Range(0, Factor).SelectMany(_ => values).ToArray();
-    Shuffle(array);
-    return array;
+    var duplicates = Enumerable.Range(0, Factor).SelectMany(_ => values);
 
-    static void Shuffle(T[] array) {
-#if NET6_0_OR_GREATER
-      var random = Random.Shared;
+#if NET10_0_OR_GREATER
+    return [.. duplicates.Shuffle()];
 #else
+    return Shuffle(duplicates);
+
+    static T[] Shuffle(IEnumerable<T> values) {
+  #if NET6_0_OR_GREATER
+      var random = Random.Shared;
+  #else
       var random = new Random();
-#endif //NET6_0_OR_GREATER
+  #endif //NET6_0_OR_GREATER
+      var array = values.ToArray();
       var before = array.Length;
       while(before > 1) {
         var after = random.Next(before--);
         (array[after], array[before]) = (array[before], array[after]);
       }//while
+      return array;
     }
+#endif //NET10_0_OR_GREATER
   }
 
   [Benchmark(Baseline = true, Description = BenchmarkDescriptions.IComparable)]
