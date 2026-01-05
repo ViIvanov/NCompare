@@ -107,6 +107,10 @@ dotnet_naming_rule.static_fields_should_be_pascal_case.severity = suggestion
 dotnet_naming_rule.static_fields_should_be_pascal_case.symbols = static_field
 dotnet_naming_rule.static_fields_should_be_pascal_case.style = pascal_case
 
+dotnet_naming_rule.readonly_fields_style.severity = suggestion
+dotnet_naming_rule.readonly_fields_style.symbols = readonly_fields
+dotnet_naming_rule.readonly_fields_style.style = pascal_case
+
 dotnet_naming_rule.private_instance_field_should_be_camel_case.severity = suggestion
 dotnet_naming_rule.private_instance_field_should_be_camel_case.symbols = private_instance_field
 dotnet_naming_rule.private_instance_field_should_be_camel_case.style = camel_case
@@ -140,6 +144,10 @@ dotnet_naming_symbols.generic_type_parameter.required_modifiers =
 dotnet_naming_symbols.private_instance_field.applicable_kinds = field
 dotnet_naming_symbols.private_instance_field.applicable_accessibilities = private
 dotnet_naming_symbols.private_instance_field.required_modifiers = 
+
+dotnet_naming_symbols.readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.readonly_fields.applicable_accessibilities = *
+dotnet_naming_symbols.readonly_fields.required_modifiers = readonly
 
 dotnet_naming_symbols.async_method.applicable_kinds = method, local_function
 dotnet_naming_symbols.async_method.applicable_accessibilities = 
